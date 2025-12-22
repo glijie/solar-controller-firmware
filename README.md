@@ -164,8 +164,6 @@ De Solar Controller blijft hierbij:
 - Verwarmingselement  
 - Andere resistieve belastingen  
 
-> ⚠️ Werken met 230V vereist kennis en zorgvuldigheid.
-
 ---
 
 ## 🔄 Firmware & OTA updates
