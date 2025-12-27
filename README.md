@@ -1,186 +1,207 @@
 # ☀️ Solar Controller (ESP32)
 
-**Solar Controller** is een ESP32-gebaseerde controller voor het **slim benutten van zonne-overschot**.  
-Het systeem stuurt verbruikers (zoals een elektrische boiler) **traploos** aan op basis van **actueel vermogen**, **energieprijzen** en **instellingen**, volledig lokaal en zonder cloud.
+**Solar Controller** is een ESP32-gebaseerde controller voor het **slim en lokaal benutten van zonne-overschot**.  
+De controller stuurt verbruikers (zoals een elektrische boiler) **traploos** aan op basis van **actueel vermogen**, **energieprijzen** en **instellingen** — volledig lokaal, zonder cloudafhankelijkheid.
 
-**Doel:**
+### Doelstellingen
 - Maximaal eigen verbruik  
-- Minimale teruglevering  
+- Minimale (of nul) teruglevering  
 - Volledig automatisch, maar transparant en instelbaar  
+- Geschikt voor dagelijks en langdurig gebruik  
 
 ---
 
 ## 🔧 Wat doet de Solar Controller?
 
-- Gebruikt live P1-meterdata om **zonne-overschot** te detecteren  
-- Stuurt een vermogensregelaar **traploos via PWM** aan  
-- Combineert overschot met **Nordpool dynamische prijzen**  
-- Bepaalt zelfstandig wanneer en hoeveel vermogen gebruikt wordt  
-- Biedt een **ingebouwde webinterface** (dashboard + instellingen)  
-- Ondersteunt **OTA firmware-updates via GitHub**  
+- Leest realtime **P1-meterdata** (import / export)
+- Detecteert zonne-overschot en netafname
+- Stuurt een vermogensregelaar **traploos via PWM**
+- Combineert overschot met **Nordpool dynamische energieprijzen**
+- Bepaalt zelfstandig:
+  - *wanneer* er verbruikt wordt  
+  - *hoeveel* vermogen gebruikt wordt  
+- Beschikt over een **volledig ingebouwde webinterface**
+- Ondersteunt **OTA firmware-updates via GitHub**
 
 ---
 
-## ✨ Belangrijkste functies
+## ✨ Kernfunctionaliteit
 
 ### ⚡ Slim energiegebruik
-- Continue vermogensregeling (geen aan/uit relaisgedrag)  
-- Direct reageren op overschot of tekort  
+- Continue vermogensregeling (geen relais-achtig aan/uit gedrag)
+- Reageert direct op veranderingen in:
+  - zonne-productie
+  - huishoudelijk verbruik
+  - netimport / netexport
 
 **Geschikt voor:**
 - Elektrische boilers  
 - Verwarmingselementen  
-- Andere resistieve verbruikers  
+- Andere resistieve belastingen  
+
+---
+
+### 🌡️ Temperatuursensoren (DS18B20)
+
+De Solar Controller ondersteunt **meerdere temperatuursensoren** via 1-Wire.
+
+**Eigenschappen**
+- Meerdere DS18B20-sensoren op één datapin
+- Automatische detectie
+- Per sensor instelbaar:
+  - Naam
+  - Actief / inactief
+- Eén sensor kan worden aangewezen als **CONTROL-sensor**
+  - gebruikt voor regeling en legionella-logica
+
+**Integratie**
+- Temperatuur zichtbaar in:
+  - Solar Controller dashboard
+  - Home Assistant (via MQTT Discovery)
+- Sensor-namen die in de Solar Controller worden ingesteld,
+  worden automatisch overgenomen in Home Assistant
 
 ---
 
 ### 📊 Dynamische energieprijzen (Nordpool)
 
-De Solar Controller ondersteunt **Nordpool energieprijzen**.
+Ondersteuning voor **Nordpool spotprijzen** is volledig geïntegreerd.
 
-**Aanwezig en actief:**
-- Prijzen voor **vandaag en morgen**  
-- Ondersteuning voor:
-  - Positieve prijzen  
-  - **Negatieve prijzen**  
-- Prijsinformatie wordt actief gebruikt in de regelstrategie:
-  - Goedkoopste uren  
-  - Negatieve uren  
-  - Combinatie van prijs + zonne-overschot  
+**Ondersteund**
+- Prijzen voor vandaag en morgen
+- Positieve én negatieve prijzen
+- Gebruik in regelstrategie:
+  - goedkoopste uren
+  - negatieve uren
+  - combinatie van prijs + zonne-overschot
 
-Dit maakt het mogelijk om verbruik slim te verschuiven en optimaal gebruik te maken van dynamische tarieven.
+Hiermee kan verbruik slim worden verschoven naar de economisch meest gunstige momenten.
 
 ---
 
 ### ⚡ P1-meter compatibiliteit (bewezen)
 
-De Solar Controller werkt met de volgende P1-meters:
+Geteste en gebruikte P1-meters:
 
 #### ✔️ Youless LS120
-- Actueel vermogen (import/export)  
-- Zeer stabiel  
-- Veel gebruikt in combinatie met de Solar Controller  
+- Actueel vermogen (import / export)
+- Zeer stabiel
+- Veel gebruikt in combinatie met de Solar Controller
 
 #### ✔️ HomeWizard P1 Meter
-- Actueel vermogen  
-- Betrouwbare realtime data  
-- Direct inzetbaar  
+- Realtime vermogensdata
+- Direct inzetbaar
 
-Deze data wordt gebruikt om:
-- Zonne-overschot te detecteren  
-- Teruglevering te minimaliseren  
-- Vermogen nauwkeurig te regelen  
+**Gebruik**
+- Detectie van zonne-overschot
+- Minimaliseren van teruglevering
+- Nauwkeurige vermogensregeling
 
 ---
 
 ## 🌐 Webinterface (standalone)
 
-De Solar Controller heeft een **volledig ingebouwde webinterface**.
+De Solar Controller bevat een **volledig geïntegreerde webinterface**.
 
-**Bevat:**
-- Dashboard met status en actuele waarden  
-- Instellingenpagina  
-- Firmware / OTA update pagina  
+**Functionaliteit**
+- Dashboard met:
+  - actuele status
+  - vermogensregeling
+  - temperaturen
+- Instellingenpagina
+- Firmware / OTA-updatepagina
 
-Werkt op:
-- PC  
-- Tablet  
+**Toegang**
+- PC
+- Tablet
 - Smartphone  
 
-Geen externe software nodig.
+Geen externe software of cloud nodig.
 
 ---
 
-## 🔌 API & integratie
+## 🔌 API & integraties
 
 ### 🌐 HTTP API (REST)
 
-De Solar Controller beschikt over een **lokale HTTP API**.
+Lokale HTTP-API voor:
 
-**Gebruikt voor:**
-- Dashboard & webinterface  
-- Configuratie  
-- Statusinformatie  
-- Firmware-updates  
+- Webinterface
+- Statusinformatie
+- Configuratie
+- Firmware-updates
 
-**API-functies:**
-- Uitlezen van status en systeeminformatie  
-- Aanpassen en opslaan van instellingen  
-- Ophalen van firmware-informatie  
-- Tonen van update-voortgang  
-- Detecteren wanneer het systeem na reboot weer online is  
-
-De API is lokaal bereikbaar via het IP-adres van de Solar Controller.
+**Ontwerp**
+- Scheiding tussen:
+  - lichte status-API (dashboard)
+  - volledige status- en configuratie-API
+- Gericht op stabiliteit en lage geheugenbelasting
 
 ---
 
-### 🔁 MQTT (actief gebruikt)
+### 🔁 MQTT
 
-MQTT is volledig geïntegreerd.
+MQTT is een **kernonderdeel** van het systeem.
 
-**Functies:**
-- Ontvangen van:
-  - Actueel vermogen  
-  - Nordpool prijsinformatie  
-- Publiceren van:
-  - Status  
-  - Actieve modus  
-  - PWM / regelwaarde  
+**Ontvangen**
+- Actueel vermogen
+- Nordpool prijsinformatie
+
+**Publiceren**
+- Status
+- Actieve modus
+- Vermogensregelwaarde (PWM)
+- Temperaturen
 
 Geschikt voor:
-- Home Assistant  
-- Node-RED  
-- Monitoring & logging  
+- Home Assistant
+- Node-RED
+- Logging en monitoring
 
 ---
 
-### 🏠 Home Assistant integratie (actief)
+### 🏠 Home Assistant integratie
 
-De Solar Controller wordt actief gebruikt met **Home Assistant**.
+De Solar Controller integreert naadloos met **Home Assistant**.
 
-**Werkt met:**
-- P1-meter data  
-- Nordpool prijsinformatie  
-- Dashboards en automatiseringen  
-
-De Solar Controller blijft hierbij:
-- Zelfstandig beslissen  
-- Realtime reageren  
-- Volledig lokaal functioneren  
+**Kenmerken**
+- MQTT Discovery
+- Automatische entity-aanmaak
+- Sensor-namen worden overgenomen vanuit de Solar Controller
+- Home Assistant kan visualiseren en automatiseren  
+- De Solar Controller blijft **zelfstandig beslissen**
 
 ---
 
 ## 🔧 Vermogensregeling
 
-**Aanwezige functionaliteit:**
-- PWM-uitgang  
-- Traploze regeling  
+**Aanwezig**
+- PWM-uitgang
+- Traploze regeling
 
-**Geschikt voor vermogensregelaars zoals:**
+**Compatibel met**
 - **Kemo M240**
+- Andere PWM-gestuurde vermogensregelaars
 
-**Toepassingen:**
-- Elektrische boiler  
-- Verwarmingselement  
-- Andere resistieve belastingen  
+**Toepassingen**
+- Elektrische boiler
+- Verwarmingselement
+- Andere resistieve belastingen
 
 ---
 
 ## 🔄 Firmware & OTA updates
 
-**Aanwezig:**
-- OTA updates via GitHub  
-- Handmatige update via webinterface  
-- Automatische update (instelbaar)  
-- Update-voortgang zichtbaar:
-  - Statusmeldingen  
-  - Voortgangsbalk  
-- Automatische reboot  
-- Automatische terugkeer naar dashboard  
+**Ondersteund**
+- OTA updates via GitHub
+- Handmatige update via webinterface
+- Automatische update (instelbaar)
+- Volledige voortgangsindicatie
+- Automatische reboot en terugkeer naar dashboard
 
-De controller controleert:
-- Bij opstarten  
-- Periodiek (± elke 30 minuten)  
+**Update-controle**
+- Bij opstarten
+- Periodiek (± elke 30 minuten)
 
 ---
 
@@ -191,22 +212,24 @@ De controller controleert:
 3. Verbind met het WiFi-setup portal  
 4. Open de webinterface  
 5. Configureer:
-   - Netwerk  
-   - Vermogensregeling  
-   - Databronnen  
+   - Netwerk
+   - Vermogensregeling
+   - Databronnen
    - Update-instellingen  
-6. Klaar ✔️  
+6. Klaar ✔️
 
 ---
 
 ## 🧠 Ontwerpfilosofie
 
-- Geen cloud afhankelijkheid  
-- Alles lokaal  
-- Transparant gedrag  
-- Geen black box  
-- Gebouwd voor stabiliteit en dagelijks gebruik  
-- Gericht op maximaal eigen verbruik  
+- Geen cloudafhankelijkheid
+- Alles lokaal
+- Transparant gedrag
+- Geen black-box logica
+- Ontworpen voor:
+  - stabiliteit
+  - langdurig gebruik
+  - uitbreidbaarheid
 
 ---
 
@@ -217,9 +240,9 @@ Gebruik is op eigen risico. De auteur is niet aansprakelijk voor schade door fou
 
 ---
 
-## ❤️ motivatie
+## ❤️ Motivatie
 
-Dit project is ontstaan uit de wens om:
-- Slimmer met energie om te gaan  
-- Onafhankelijk te zijn van cloud-diensten  
-- Zonne-energie écht optimaal te benutten  
+De Solar Controller is ontstaan uit de wens om:
+- Slimmer met energie om te gaan
+- Onafhankelijk te zijn van cloud-diensten
+- Zonne-energie **écht optimaal** te benutten
