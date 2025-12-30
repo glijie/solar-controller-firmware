@@ -1,11 +1,14 @@
 # ☀️ Solar Controller (ESP32)
 
-**Solar Controller** is een ESP32-gebaseerde controller voor het **slim en lokaal benutten van zonne-overschot**.  
-De controller stuurt verbruikers (zoals een elektrische boiler) **traploos** aan op basis van **actueel vermogen**, **energieprijzen** en **instellingen** — volledig lokaal, zonder cloudafhankelijkheid.
+**Solar Controller** is een ESP32-gebaseerde controller voor het **slim en volledig lokaal benutten van zonne-overschot**.  
+De controller stuurt verbruikers (zoals een elektrische boiler) **traploos** aan op basis van **actueel vermogen**, **energieprijzen** en **instellingen** — zonder cloudafhankelijkheid.
 
-### Doelstellingen
+---
+
+## 🎯 Doelstellingen
 - Maximaal eigen verbruik  
 - Minimale (of nul) teruglevering  
+- Slim inspelen op dynamische energieprijzen  
 - Volledig automatisch, maar transparant en instelbaar  
 - Geschikt voor dagelijks en langdurig gebruik  
 
@@ -15,11 +18,11 @@ De controller stuurt verbruikers (zoals een elektrische boiler) **traploos** aan
 
 - Leest realtime **P1-meterdata** (import / export)
 - Detecteert zonne-overschot en netafname
-- Stuurt een vermogensregelaar **traploos via PWM**
-- Combineert overschot met **Nordpool dynamische energieprijzen**
-- Bepaalt zelfstandig:
-  - *wanneer* er verbruikt wordt  
-  - *hoeveel* vermogen gebruikt wordt  
+- Stuurt verbruikers **traploos via PWM**
+- Combineert zonne-overschot met **Nordpool dynamische energieprijzen**
+- Kan automatisch kiezen tussen:
+  - zonne-overschot benutten
+  - elektrisch verwarmen bij goedkope stroom
 - Beschikt over een **volledig ingebouwde webinterface**
 - Ondersteunt **OTA firmware-updates via GitHub**
 
@@ -29,7 +32,7 @@ De controller stuurt verbruikers (zoals een elektrische boiler) **traploos** aan
 
 ### ⚡ Slim energiegebruik
 - Continue vermogensregeling (geen relais-achtig aan/uit gedrag)
-- Reageert direct op veranderingen in:
+- Reageert direct op:
   - zonne-productie
   - huishoudelijk verbruik
   - netimport / netexport
@@ -41,9 +44,42 @@ De controller stuurt verbruikers (zoals een elektrische boiler) **traploos** aan
 
 ---
 
+### 🔥 Gas versus Elektrisch verwarmen (nieuw)
+
+De Solar Controller kan nu **automatisch bepalen of gas of elektriciteit goedkoper is** en hierop handelen.
+
+**Functionaliteit**
+- Vergelijkt actuele gas- en elektriciteitsprijzen
+- Houdt rekening met:
+  - rendement
+  - energiebelasting
+  - inkoopkosten
+  - BTW
+- Geeft continu een **advies**:
+  - *Gas verwarmen*
+  - *Elektrisch verwarmen*
+
+**Automatisch uitvoeren**
+- Optioneel kan het advies **Elektrisch verwarmen automatisch worden uitgevoerd**
+- Wanneer elektriciteit goedkoper is dan gas:
+  - kan de boiler actief elektrisch worden opgewarmd
+  - ook **zonder zonne-overschot**
+- Ideaal voor:
+  - winterperiodes
+  - goedkope dynamische stroomprijzen
+
+**Prioriteit**
+- Automatisch elektrisch verwarmen heeft **dezelfde prioriteit** als:
+  - Forceer verwarmen
+  - Legionella-modus
+- Wordt niet geblokkeerd door tijdschema’s of normale beperkingen
+- Zonne-overschot blijft altijd leidend wanneer beschikbaar
+
+---
+
 ### 🌡️ Temperatuursensoren (DS18B20)
 
-De Solar Controller ondersteunt **meerdere temperatuursensoren** via 1-Wire.
+Ondersteuning voor **meerdere temperatuursensoren** via 1-Wire.
 
 **Eigenschappen**
 - Meerdere DS18B20-sensoren op één datapin
@@ -58,14 +94,13 @@ De Solar Controller ondersteunt **meerdere temperatuursensoren** via 1-Wire.
 - Temperatuur zichtbaar in:
   - Solar Controller dashboard
   - Home Assistant (via MQTT Discovery)
-- Sensor-namen die in de Solar Controller worden ingesteld,
-  worden automatisch overgenomen in Home Assistant
+- Sensor-namen worden automatisch overgenomen in Home Assistant
 
 ---
 
 ### 📊 Dynamische energieprijzen (Nordpool)
 
-Ondersteuning voor **Nordpool spotprijzen** is volledig geïntegreerd.
+Volledige integratie van **Nordpool spotprijzen**.
 
 **Ondersteund**
 - Prijzen voor vandaag en morgen
@@ -75,7 +110,7 @@ Ondersteuning voor **Nordpool spotprijzen** is volledig geïntegreerd.
   - negatieve uren
   - combinatie van prijs + zonne-overschot
 
-Hiermee kan verbruik slim worden verschoven naar de economisch meest gunstige momenten.
+Hiermee wordt energieverbruik automatisch verschoven naar de economisch meest gunstige momenten.
 
 ---
 
@@ -108,6 +143,7 @@ De Solar Controller bevat een **volledig geïntegreerde webinterface**.
   - actuele status
   - vermogensregeling
   - temperaturen
+  - gas vs elektrisch advies
 - Instellingenpagina
 - Firmware / OTA-updatepagina
 
@@ -123,19 +159,13 @@ Geen externe software of cloud nodig.
 ## 🔌 API & integraties
 
 ### 🌐 HTTP API (REST)
-
 Lokale HTTP-API voor:
-
 - Webinterface
 - Statusinformatie
 - Configuratie
 - Firmware-updates
 
-**Ontwerp**
-- Scheiding tussen:
-  - lichte status-API (dashboard)
-  - volledige status- en configuratie-API
-- Gericht op stabiliteit en lage geheugenbelasting
+Ontworpen voor stabiliteit en lage geheugenbelasting.
 
 ---
 
@@ -150,8 +180,9 @@ MQTT is een **kernonderdeel** van het systeem.
 **Publiceren**
 - Status
 - Actieve modus
-- Vermogensregelwaarde (PWM)
+- PWM-vermogen
 - Temperaturen
+- Verwarmingsadvies
 
 Geschikt voor:
 - Home Assistant
@@ -162,31 +193,14 @@ Geschikt voor:
 
 ### 🏠 Home Assistant integratie
 
-De Solar Controller integreert naadloos met **Home Assistant**.
+Naadloze integratie met **Home Assistant**.
 
 **Kenmerken**
 - MQTT Discovery
 - Automatische entity-aanmaak
-- Sensor-namen worden overgenomen vanuit de Solar Controller
+- Sensor-namen worden overgenomen
 - Home Assistant kan visualiseren en automatiseren  
-- De Solar Controller blijft **zelfstandig beslissen**
-
----
-
-## 🔧 Vermogensregeling
-
-**Aanwezig**
-- PWM-uitgang
-- Traploze regeling
-
-**Compatibel met**
-- **Kemo M240**
-- Andere PWM-gestuurde vermogensregelaars
-
-**Toepassingen**
-- Elektrische boiler
-- Verwarmingselement
-- Andere resistieve belastingen
+- De Solar Controller blijft **autonoom beslissen**
 
 ---
 
@@ -197,26 +211,11 @@ De Solar Controller integreert naadloos met **Home Assistant**.
 - Handmatige update via webinterface
 - Automatische update (instelbaar)
 - Volledige voortgangsindicatie
-- Automatische reboot en terugkeer naar dashboard
+- Automatische reboot
 
 **Update-controle**
 - Bij opstarten
-- Periodiek (± elke 30 minuten)
-
----
-
-## 🚀 Installatie (globaal)
-
-1. Flash de firmware (`.bin`) op een ESP32  
-2. Start de ESP32  
-3. Verbind met het WiFi-setup portal  
-4. Open de webinterface  
-5. Configureer:
-   - Netwerk
-   - Vermogensregeling
-   - Databronnen
-   - Update-instellingen  
-6. Klaar ✔️
+- Periodiek (interval-gestuurd)
 
 ---
 
@@ -236,7 +235,7 @@ De Solar Controller integreert naadloos met **Home Assistant**.
 ## 📜 Disclaimer
 
 Dit project is bedoeld voor **educatief en eigen gebruik**.  
-Gebruik is op eigen risico. De auteur is niet aansprakelijk voor schade door foutieve installatie of gebruik.
+Gebruik is volledig op eigen risico. De auteur is niet aansprakelijk voor schade door foutieve installatie of gebruik.
 
 ---
 
