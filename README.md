@@ -245,3 +245,10 @@ De Solar Controller is ontstaan uit de wens om:
 - Slimmer met energie om te gaan
 - Onafhankelijk te zijn van cloud-diensten
 - Zonne-energie **écht optimaal** te benutten
+
+## 📘 Documentatie
+
+- 👉 [Benodigde hardware](docs/hardware.md)
+- 👉 [Installatiehandleiding](docs/installatie.md)
+- 👉 [Configuratie & instellingen](docs/configuratie.md)
+
