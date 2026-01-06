@@ -287,7 +287,6 @@ De Solar Controller kan worden geïntegreerd met:
 - Voeg prijssturing later toe
 - Test Force Heat altijd zonder boiler
 - Gebruik DHCP-reservering voor vast IP
-- Houd logs aan tijdens eerste weken
 
 ---
 
