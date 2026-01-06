@@ -124,6 +124,4 @@ De volgende onderdelen zijn **optioneel** en niet nodig voor basiswerking:
 - Node-RED
 - Behuizing (sterk aanbevolen, maar niet technisch verplicht)
 
-Deze worden beschreven in aparte documentatie.
-
 ---
