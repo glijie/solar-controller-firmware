@@ -70,12 +70,11 @@ Volg het officiële aansluitschema van de Kemo M240 en zorg voor:
 
 ---
 
-## 4️⃣ Firmware flashen
+## 4️⃣ 1e keer Firmware flashen
 
 Flash de Solar Controller firmware op de ESP32 via:
-- Arduino IDE
-- PlatformIO
-- of een flashtool met `.bin` bestand
+-  flash download tool met `first_intstall.bin` bestand
+-  
 
 Na flashen start de ESP32 automatisch opnieuw.  
 PWM blijft **uit** tijdens opstart (boot-beveiliging).
