@@ -251,4 +251,5 @@ De Solar Controller is ontstaan uit de wens om:
 - 👉 [Benodigde hardware](docs/hardware.md)
 - 👉 [Installatiehandleiding](docs/installatie.md)
 - 👉 [Configuratie & instellingen](docs/configuratie.md)
+- 👉 [Eerste installatie – Solar Controller (ESP32 + Arduino IDE)](docs/eerste_installatie.md)
 
