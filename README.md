@@ -275,3 +275,22 @@ De Solar Controller is ontstaan uit de wens om:
 - 👉 [Installatiehandleiding](docs/installatie.md)
 - 👉 [Configuratie & instellingen](docs/configuratie.md)
 
+
+---
+
+## 🖼️ Screenshots
+
+<p align="center">
+  <img src="docs/images/dashboard.jpg" width="45%">
+  <img src="docs/images/prijzen.jpg" width="45%">
+</p>
+
+<p align="center">
+  <img src="docs/images/control.jpg" width="45%">
+  <img src="docs/images/legionella.jpg" width="45%">
+</p>
+
+<p align="center">
+  <img src="docs/images/settings.jpg" width="60%">
+</p>
+
