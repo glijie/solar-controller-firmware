@@ -134,6 +134,29 @@ Geteste en gebruikte P1-meters:
 
 ---
 
+## 🛡️ Fasebewaking (veiligheidsfunctie)
+
+De Solar Controller beschikt over een **optionele fasebewaking** die helpt om het energiegebruik **veilig over de netfases te verdelen**.
+
+**Werking**
+- Controleert continu of de belasting per fase binnen veilige grenzen blijft
+- Reageert direct op afwijkende of onbetrouwbare meetsituaties
+- Voorkomt ongewenste belasting van één enkele fase
+
+**Belangrijk**
+- Fasebewaking is **instelbaar** en alleen actief wanneer deze functie is ingeschakeld
+- Werkt correct met:
+  - Youless LS120
+  - HomeWizard P1 Meter
+- Bij ontbrekende of onbetrouwbare fase-informatie grijpt de beveiliging automatisch in
+
+**Doel**
+- Extra bescherming van installatie en netaansluiting
+- Meer stabiliteit bij hogere vermogens
+- Veiliger langdurig en autonoom gebruik
+
+---
+
 ## 🌐 Webinterface (standalone)
 
 De Solar Controller bevat een **volledig geïntegreerde webinterface**.
