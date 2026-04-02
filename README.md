@@ -274,7 +274,7 @@ De Solar Controller is ontstaan uit de wens om:
 - 👉 [Benodigde hardware](docs/hardware.md)
 - 👉 [Installatiehandleiding](docs/installatie.md)
 - 👉 [Configuratie & instellingen](docs/configuratie.md)
-- [OTA of USB installatie & update](docs/OTA_OF_USB_UPDATE.md)
+- 👉 [OTA of USB installatie & update](docs/OTA_OF_USB_UPDATE.md)
 
 
 ---
