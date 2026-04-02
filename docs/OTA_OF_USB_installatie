@@ -1,0 +1,133 @@
+# OTA of USB installatie / update
+
+De Solar Controller kan op 2 manieren geïnstalleerd en geüpdatet worden:
+
+- **OTA**
+- **USB**
+
+Welke methode je gebruikt, hangt af van de manier waarop jouw ESP32 eerder is geïnstalleerd en of er voldoende geheugen beschikbaar is voor OTA-updates.
+
+---
+
+## 1. OTA installatie / updates
+
+Gebruik deze methode als jij de controller wilt installeren of updaten via de **OTA-route**.
+
+### Eerste installatie
+Gebruik hiervoor:
+
+- **OTA_first_install.zip**
+
+### Volgende updates
+Na de eerste installatie kunnen volgende updates gewoon via OTA met:
+
+- **SolarController.bin**
+
+### Belangrijk
+Na de eerste OTA-installatie zijn volgende updates eenvoudig uit te voeren via de **webinterface van de controller**.
+
+Daarvoor is dus:
+
+- **geen USB-kabel nodig**
+- **geen flashtool nodig**
+
+---
+
+## 2. USB installatie / updates
+
+Gebruik deze methode als jij de controller wilt installeren of updaten via **USB**.
+
+Deze methode is ook bedoeld voor ESP32's waarbij **te weinig geheugen beschikbaar is voor OTA-updates**.
+
+### Eerste installatie
+Gebruik hiervoor:
+
+- **USB_First_install.zip**
+
+### Volgende updates
+Voor volgende updates gebruik je:
+
+- **USB_Update.bin**
+
+### Belangrijk
+Een USB-update moet altijd uitgevoerd worden met een **flashtool**, zoals bijvoorbeeld:
+
+- **Flash Download Tool**
+
+Hiervoor moet de ESP32 met een **USB-kabel** aangesloten worden op de computer.
+
+---
+
+## Wanneer gebruik ik OTA?
+
+Gebruik **OTA** als:
+
+- je controller al via de OTA-route werkt
+- updaten via de webinterface mogelijk is
+- jouw ESP32 voldoende ruimte heeft voor OTA-updates
+
+---
+
+## Wanneer gebruik ik USB?
+
+Gebruik **USB** als:
+
+- jij handmatig wilt flashen via een computer
+- OTA-updaten niet werkt
+- jouw ESP32 te weinig geheugen heeft voor OTA-updates
+- jij al eerder de USB-installatieroute gebruikt hebt
+
+---
+
+## Belangrijk verschil tussen OTA en USB
+
+### OTA
+- eerste installatie met **OTA_first_install.zip**
+- daarna updaten via **SolarController.bin**
+- na eerste installatie geen kabel meer nodig
+
+### USB
+- eerste installatie met **USB_First_install.zip**
+- daarna updaten met **USB_Update.bin**
+- updaten gaat altijd via **USB-kabel + flashtool**
+
+---
+
+## Let op
+
+Gebruik altijd de bestanden die horen bij jouw eigen installatiemethode.
+
+Dus:
+
+- gebruik je **OTA**, blijf dan ook de **OTA-bestanden** gebruiken
+- gebruik je **USB**, gebruik dan ook de **USB-bestanden**
+
+Twijfel je welke methode jij gebruikt?
+
+Dan geldt meestal:
+
+- update je via de **webinterface van de controller** → **OTA**
+- update je met een **USB-kabel en flashtool** → **USB**
+
+---
+
+## Samenvatting
+
+### OTA route
+- Eerste installatie: **OTA_first_install.zip**
+- Updates daarna: **SolarController.bin**
+- Geen USB-kabel nodig na eerste installatie
+
+### USB route
+- Eerste installatie: **USB_First_install.zip**
+- Updates daarna: **USB_Update.bin**
+- Altijd via **USB-kabel** en **flashtool**
+
+---
+
+## Voor gebruikers met een ESP32 met te weinig geheugen voor OTA
+
+Sommige ESP32's hebben te weinig vrije ruimte om OTA-updates goed uit te voeren.  
+Gebruik in dat geval de **USB installatie / update methode**.
+
+---
