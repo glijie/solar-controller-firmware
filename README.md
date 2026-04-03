@@ -127,11 +127,17 @@ Geteste en gebruikte P1-meters:
 - Realtime vermogensdata
 - Direct inzetbaar
 
+#### ✔️ Smart Gateways P1
+- Actueel vermogen (import / export)
+- Fasewaardes beschikbaar
+- Ondersteuning toegevoegd in de Solar Controller
+
 **Gebruik**
 - Detectie van zonne-overschot
 - Minimaliseren van teruglevering
 - Nauwkeurige vermogensregeling
-
+- Fase-informatie voor fasebeveiliging
+  
 ---
 
 ## 🛡️ Fasebewaking (veiligheidsfunctie)
