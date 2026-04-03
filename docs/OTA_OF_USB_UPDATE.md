@@ -21,8 +21,8 @@ Voor ESP32's met te weinig vrije ruimte voor OTA-updates is er ook een **USB-rou
 Gebruik de OTA-route als jouw controller via de **webinterface** werkt en OTA-updates ondersteunt.
 
 ### Bestanden
-- **OTA_first_install.zip** → voor de eerste installatie
-- **SolarController.bin** → voor volgende updates
+- **OTA_first_install.zip** → voor de eerste installatie --> gebruik flash-adress 0x0000
+- **SolarController.bin** → voor volgende updates --> gebruik flash-adress 0x10000
 
 ### Belangrijk
 Na de eerste OTA-installatie kunnen volgende updates gewoon via de webinterface van de controller uitgevoerd worden.
@@ -40,8 +40,8 @@ nodig.
 Gebruik de USB-route als OTA niet werkt of als jouw ESP32 te weinig geheugen heeft voor OTA-updates.
 
 ### Bestanden
-- **USB_First_install.zip** → voor de eerste installatie
-- **USB_Update.bin** → voor volgende updates
+- **USB_First_install.zip** → voor de eerste installatie --> gebruik flash-adress 0x0000
+- **USB_Update.bin** → voor volgende updates --> gebruik flash-adress 0x10000
 
 ### Belangrijk
 Een USB-update moet altijd uitgevoerd worden met een **flashtool**, zoals bijvoorbeeld **Flash Download Tool**.
