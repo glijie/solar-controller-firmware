@@ -22,7 +22,7 @@ Gebruik de OTA-route als jouw controller via de **webinterface** werkt en OTA-up
 
 ### Bestanden
 - **OTA_first_install.zip** → voor de eerste installatie --> gebruik flash-adress 0x0000
-- **SolarController.bin** → voor volgende updates --> gebruik flash-adress 0x10000
+- **SolarController.bin** → voor volgende updates
 
 ### Belangrijk
 Na de eerste OTA-installatie kunnen volgende updates gewoon via de webinterface van de controller uitgevoerd worden.
