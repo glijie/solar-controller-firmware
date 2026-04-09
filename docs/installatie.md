@@ -114,7 +114,17 @@ Het IP-adres vind je via:
 
 ## 7️⃣ `.local` adres (optioneel)
 
-Na het instellen van een **device name** is de controller ook bereikbaar via:
+Na het instellen van een **Apparaatnaam** is de controller ook bereikbaar via:
+
+- `http://devicename.local`
+
+Voorbeeld:
+
+- `http://solar-controller.local`
+
+**Instellen:** via de webinterface bij **settings** / **Netwerk & Meter** 
+
+> Werkt `.local` niet, gebruik dan het IP-adres van de controller.
 
 ---
 
