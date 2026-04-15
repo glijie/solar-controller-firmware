@@ -62,6 +62,9 @@ Met **Multi Controller** kan de Solar Controller **meerdere controllers slim lat
 - Logische verdeling op basis van prioriteit
 - Geschikt voor meerdere boilers, vloerverwarming of andere belastingen
 - Veiligheidsfuncties zoals fasebewaking en limieten blijven altijd actief
+  
+[beschrijving](docs/MULTI_CONTROLLER_MASTER_SLAVE_KORT.md)
+
 ---
 
 ### 🔥 Gas versus Elektrisch verwarmen (nieuw)
