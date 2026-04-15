@@ -43,6 +43,26 @@ De controller stuurt verbruikers (zoals een elektrische boiler) **traploos** aan
 - Andere resistieve belastingen  
 
 ---
+### 🔗 Multi Controller (nieuw)
+
+Met **Multi Controller** kan de Solar Controller **meerdere controllers slim laten samenwerken** binnen één gezamenlijke regeling.
+
+**Ondersteund**
+- Lokale aansturing van meerdere PWM-uitgangen op één ESP
+- Netwerkbesturing via **master/slave**
+- Combinatie van lokale en netwerk-controllers
+
+**Werking**
+- De **master** bepaalt de regeling en verdeling
+- De **slave** voert uit en regelt niet zelfstandig tegen de master in
+- De samenwerking voorkomt dat meerdere controllers tegelijk ongecoördineerd op hetzelfde overschot reageren
+
+**Voordelen**
+- Rustigere en stabielere regeling bij meerdere ESP's gebruik
+- Logische verdeling op basis van prioriteit
+- Geschikt voor meerdere boilers, vloerverwarming of andere belastingen
+- Veiligheidsfuncties zoals fasebewaking en limieten blijven altijd actief
+---
 
 ### 🔥 Gas versus Elektrisch verwarmen (nieuw)
 
