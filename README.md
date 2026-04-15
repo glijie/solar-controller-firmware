@@ -63,7 +63,8 @@ Met **Multi Controller** kan de Solar Controller **meerdere controllers slim lat
 - Geschikt voor meerdere boilers, vloerverwarming of andere belastingen
 - Veiligheidsfuncties zoals fasebewaking en limieten blijven altijd actief
   
-[beschrijving](docs/MULTI_CONTROLLER_MASTER_SLAVE_KORT.md)
+ - 👉[beschrijving](docs/MULTI_CONTROLLER_MASTER_SLAVE_KORT.md)
+ - 👉[instellingen](docs/MULTI_CONTROLLER_MASTER_SLAVE_INSTELLEN.md)
 
 ---
 
