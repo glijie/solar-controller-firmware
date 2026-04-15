@@ -303,8 +303,8 @@ De Solar Controller is ontstaan uit de wens om:
 - 👉 [Configuratie & instellingen](docs/configuratie.md)
 - 👉 [OTA of USB installatie & update](docs/OTA_OF_USB_UPDATE.md)
 
-- 👉[beschrijving multi conroller](docs/MULTI_CONTROLLER_MASTER_SLAVE_KORT.md)
-- 👉[instellingen multi controller](docs/MULTI_CONTROLLER_MASTER_SLAVE_INSTELLEN.md)
+- 👉 [beschrijving multi conroller](docs/MULTI_CONTROLLER_MASTER_SLAVE_KORT.md)
+- 👉 [instellingen multi controller](docs/MULTI_CONTROLLER_MASTER_SLAVE_INSTELLEN.md)
 
 
 ---
