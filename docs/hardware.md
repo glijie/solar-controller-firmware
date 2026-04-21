@@ -72,6 +72,7 @@ Nodig om import / export van het net te meten.
 **Getest en ondersteund:**
 - ✔️ Youless LS120
 - ✔️ HomeWizard P1 Meter
+- ✔️ Smart Gateways P1
 
 **Gebruik:**
 - Detectie van zonne-overschot
