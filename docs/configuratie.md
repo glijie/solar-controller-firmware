@@ -91,6 +91,7 @@ MQTT is de **primaire integratielaag**.
 Ondersteund:
 - Youless LS120
 - HomeWizard P1
+- Smart Gateways P1
 
 ### Instellingen
 - IP-adres van de P1-meter
