@@ -175,6 +175,7 @@ De Solar Controller beschikt over een **optionele fasebewaking** die helpt om he
 - Werkt correct met:
   - Youless LS120
   - HomeWizard P1 Meter
+  - Smart Gateways P1
 - Bij ontbrekende of onbetrouwbare fase-informatie grijpt de beveiliging automatisch in
 
 **Doel**
