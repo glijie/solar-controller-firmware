@@ -53,6 +53,8 @@ De Solar Controller gebruikt **één vaste PWM-pin**, vastgelegd in de firmware.
 - **GND moet gedeeld zijn**
 - Gebruik **niet** de 0–10V ingang van de Kemo
 - PWM-frequentie: **1000 Hz**, resolutie **8-bit (0–255)**
+<img width="458" height="574" alt="image" src="https://github.com/user-attachments/assets/bc5f23fe-f5e4-4a4c-a4e0-4b4728f792fa" />
+
 
 ---
 
