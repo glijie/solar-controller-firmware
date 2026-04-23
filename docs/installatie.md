@@ -17,7 +17,7 @@ De Solar Controller werkt **volledig lokaal** en stuurt een elektrische boiler *
 - 230V → 5V DC voeding
 - Kemo M240 vermogensregelaar
 - Elektrische boiler met **analoge thermostaat**
-- P1-meter (Youless LS120 of HomeWizard P1)
+- P1-meter (Youless LS120, HomeWizard P1 of smart gateway)
 - WiFi-netwerk
 
 Zie `docs/hardware.md` voor details.
