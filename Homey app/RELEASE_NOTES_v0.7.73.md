@@ -1,6 +1,6 @@
 # Solar Controller Homey App v0.7.73
 
-Release notes voor de Homey app update voor Solar Controller firmware `v2026.04.29.01 step300`.
+Release notes voor de Homey app update voor Solar Controller
 
 ## Wat zit erin
 
