@@ -49,6 +49,27 @@ Voor het traploos aansturen van het verwarmingselement.
 
 **Functie:**
 - Regelt het vermogen naar de boiler op basis van zonne-overschot of prijsstrategie
+---
+### Hardwarebeveiliging – Kemo M240
+
+De Kemo M240 mag nooit boven zijn specificaties worden belast.
+
+De Kemo M240 is bedoeld voor maximaal:
+
+- **10 A**
+- **2300 W**
+
+Daarom moet de installatie elektrisch worden beveiligd.
+
+#### Vereist
+- Gebruik een passende automaat / zekering vóór de Kemo
+- Kies de beveiliging zodanig dat de Kemo niet boven **10 A / 2300 W** kan worden belast
+- Stel in de Solar Controller de **Max PWM %** zo in dat het werkelijk opgenomen vermogen binnen deze veilige grens blijft bij grotere vermogens dan 10A en 2300W
+
+#### Belangrijk
+De instelling **Max PWM %** is een extra softwarematige begrenzing, maar vervangt geen elektrische beveiliging.
+
+De elektrische installatie moet altijd zo zijn uitgevoerd dat de Kemo M240 ook bij foutieve instellingen, verkeerde configuratie of defecten niet boven zijn specificaties belast kan worden.
 
 ---
 
