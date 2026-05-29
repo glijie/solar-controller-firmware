@@ -127,6 +127,30 @@ Zonder P1-data kan geen nauwkeurige regeling plaatsvinden.
 
 ---
 
+### Belangrijke hardwarebeveiliging – Kemo M240
+
+Wanneer de Solar Controller wordt gebruikt met een **Kemo M240**, mag deze nooit boven de specificaties van de Kemo worden belast.
+
+De Kemo M240 is bedoeld voor maximaal:
+
+- **10 A**
+- **2300 W**
+
+Daarom moet de installatie hierop worden beveiligd.
+
+#### Vereist
+- Gebruik een passende automaat / zekering vóór de Kemo
+- Kies de beveiliging zodanig dat de Kemo niet boven **10 A / 2300 W** kan worden belast
+- Stel in de Solar Controller de **maximale PWM-output** zo in dat het opgenomen vermogen binnen de veilige grens blijft indien Boiler vermogen groter is dan 10A en 2300W
+
+#### Belangrijk
+De instelling **Max PWM %** is een extra softwarematige begrenzing, maar vervangt geen elektrische beveiliging.
+
+De elektrische installatie moet altijd zo zijn uitgevoerd dat de Kemo M240 ook bij foutieve instellingen of defecten niet boven zijn specificaties belast kan worden.
+
+---
+
+
 ## 5️⃣ Relais
 
 ### Doel
