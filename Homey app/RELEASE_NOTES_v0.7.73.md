@@ -177,4 +177,143 @@ homey app install
 ```text
 Solar_Controller_Homey_v0.7.73_multi_esp.zip
 ```
+---
+
+# Snelle installatie Homey app via CLI
+
+## Windows – CMD
+
+Onderstaande stappen zijn bedoeld voor gebruikers die de Solar Controller Homey app handmatig via de Homey CLI installeren.
+
+### Eerste installatie
+
+#### 1. Installeer Node.js LTS
+
+Download en installeer de actuele LTS-versie van Node.js:
+
+[Node.js downloaden](https://nodejs.org/en/download)
+
+Na de installatie kan CMD opnieuw worden geopend.
+
+#### 2. Open CMD
+
+Open in Windows:
+
+**Opdrachtprompt / Command Prompt**
+
+Dit kan bijvoorbeeld via:
+
+**Start → typ `CMD` → Enter**
+
+#### 3. Installeer de Homey CLI
+
+Voer in CMD uit:
+
+```cmd
+npm install -g homey
+```
+
+Dit hoeft normaal gesproken alleen de eerste keer uitgevoerd te worden.
+
+#### 4. Log in op Homey
+
+Voer daarna uit:
+
+```cmd
+homey login
+```
+
+Volg de instructies om in te loggen op het Homey-account waarop de app geïnstalleerd moet worden.
+
+#### 5. Download en pak de app ZIP uit
+
+Download de release ZIP en pak deze uit naar een vaste map op de computer.
+
+Bijvoorbeeld:
+
+```text
+C:\Homey\Solar_Controller_Homey_v0.7.73
+```
+
+#### 6. Ga in CMD naar de app-map
+
+Ga naar de map waarin de Homey app is uitgepakt.
+
+Bijvoorbeeld:
+
+```cmd
+cd C:\Homey\Solar_Controller_Homey_v0.7.73
+```
+
+Belangrijk: je moet in de map staan waarin onder andere het bestand `app.json` aanwezig is.
+
+Dus niet in de map waar alleen het ZIP-bestand staat.
+
+Je kunt controleren of je in de juiste map staat met:
+
+```cmd
+dir
+```
+
+In de lijst moet `app.json` zichtbaar zijn.
+
+#### 7. Installeer de dependencies
+
+Voer uit:
+
+```cmd
+npm install
+```
+
+Hiermee worden de benodigde Node.js dependencies voor de Homey app geïnstalleerd.
+
+#### 8. Installeer de app op Homey
+
+Voer vervolgens uit:
+
+```cmd
+homey app install
+```
+
+De Homey CLI bouwt de app en installeert deze vervolgens op de gekoppelde Homey.
+
+Na een succesvolle installatie kan de Solar Controller via **Homey → Apparaten → Nieuw apparaat** worden toegevoegd of verder worden gebruikt.
+
+---
+
+## Bestaande installatie updaten
+
+Wanneer al een eerdere versie van de Solar Controller Homey app via de CLI is geïnstalleerd, zijn er minder stappen nodig.
+
+Download eerst de nieuwe ZIP en pak deze uit.
+
+Open vervolgens CMD en ga naar de map van de nieuwe versie:
+
+```cmd
+cd C:\pad\naar\app-map
+```
+
+Waarbij dit de map is waarin het nieuwe `app.json` bestand staat.
+
+Voer daarna uit:
+
+```cmd
+npm install
+homey app install
+```
+
+De bestaande Homey app wordt hiermee bijgewerkt naar de nieuwe versie.
+
+Bestaande gekoppelde Solar Controller apparaten hoeven daarbij normaal gesproken niet opnieuw te worden toegevoegd.
+
+### Kort overzicht voor updates
+
+```cmd
+cd C:\pad\naar\app-map
+npm install
+homey app install
+```
+
+Gebruik bij iedere nieuwe release altijd de map van de **nieuwe uitgepakte versie** van de Homey app.
+
 
