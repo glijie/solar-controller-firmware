@@ -1,4 +1,4 @@
-# Solar Controller Homey App v0.7.73
+# Solar Controller Homey App 
 
 Release notes voor de Homey app update voor Solar Controller
 
@@ -164,22 +164,18 @@ Voor oudere Homey hardware kan `legacy` gebruikt worden om rustiger te pollen.
 
 Bestaande gebruikers hoeven hun apparaten niet opnieuw te koppelen. Nieuwe capabilities en instellingen worden bij app-start gemigreerd.
 
-## Installatie
+# installatie Homey app via App store (test)
 
-```bash
-npm install
-homey login
-homey app install
+[klik Hier](https://homey.app/nl-nl/app/com.patrick.solarcontroller/Solar-Controller/test/)
+
+
 ```
 
-## Release ZIP
 
-```text
-Solar_Controller_Homey_v0.7.73_multi_esp.zip
 ```
 ---
 
-# Snelle installatie Homey app via CLI
+# installatie Homey app via CLI
 
 ## Windows – CMD
 
