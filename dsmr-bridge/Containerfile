@@ -1,0 +1,29 @@
+# DSMR Reader -> HomeWizard bridge container.
+# Runs next to the DSMR Reader container on the Raspberry Pi.
+#
+# Build on the Pi:
+#   podman build -t localhost/dsmr-homewizard-bridge .
+FROM docker.io/library/python:3.12-slim
+
+ENV PYTHONUNBUFFERED=1
+
+WORKDIR /app
+
+# The bridge is standard-library only; copy everything in one layer.
+COPY bridge.py /app/bridge.py
+
+# Listens on port 80 inside the container (published to the host port).
+EXPOSE 80
+
+# Defaults can be overridden by the Quadlet EnvironmentFile.
+ENV BRIDGE_HOST=0.0.0.0 \
+    BRIDGE_PORT=80 \
+    DSMR_POWER_UNIT=kw \
+    PHASE_VOLTAGE_V=230 \
+    STALE_AFTER_S=60 \
+    POLL_INTERVAL_S=5
+
+HEALTHCHECK --interval=15s --timeout=5s --start-period=10s \
+  CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1/health', timeout=4)" || exit 1
+
+CMD ["python", "/app/bridge.py"]
