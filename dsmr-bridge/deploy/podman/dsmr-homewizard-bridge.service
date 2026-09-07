@@ -9,20 +9,27 @@
 #        cd ~/dsmr-bridge
 #        podman build -t localhost/dsmr-homewizard-bridge .
 #
-#   2. Container eenmalig starten (bridge.env met DSMR-instellingen):
+#   2. bridge.env aanmaken (kopie van bridge.env.example, vul API-key in):
+#        cp ~/dsmr-bridge/bridge.env.example ~/dsmr-bridge/bridge.env
+#        nano ~/dsmr-bridge/bridge.env
+#
+#   3. Container eenmalig starten:
 #        podman run -d --name dsmr-homewizard-bridge \
 #          --restart always -p 8080:80 \
 #          --env-file ~/dsmr-bridge/bridge.env \
 #          localhost/dsmr-homewizard-bridge
 #
-#   3. Unit genereren en installeren:
+#   4. Unit genereren en installeren:
 #        podman generate systemd --new --name dsmr-homewizard-bridge \
 #          > ~/.config/systemd/user/dsmr-homewizard-bridge.service
-#        export XDG_RUNTIME_DIR=/run/user/1002
+#        export XDG_RUNTIME_DIR=/run/user/$(id -u)
 #        systemctl --user daemon-reload
 #        systemctl --user enable --now dsmr-homewizard-bridge.service
 #
 #   (dsmrreader heeft linger aan -> service start ook na een reboot.)
+#
+# Let op: in de Solar Controller kun je als meteradres ook IP:poort invullen,
+# bijv. 192.168.15.233:8080. Aanpassen van poort 80 of sysctl is dan NIET nodig.
 #
 # Onderstaande unit is de door podman gegenereerde, werkende versie.
 

@@ -10,6 +10,7 @@ import threading
 import time
 import urllib.error
 import urllib.request
+from datetime import datetime
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Any
 
@@ -46,6 +47,19 @@ def first_number(value: Any, paths: list[str]) -> float | None:
 def env_number(name: str, default: float) -> float:
     value = number(os.getenv(name))
     return default if value is None else value
+
+
+def iso_epoch(value: Any) -> float | None:
+    """Parse an ISO-8601 timestamp (with or without offset) to epoch seconds."""
+    if value is None:
+        return None
+    try:
+        parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    # Naive timestamps are interpreted as server-local time, which matches
+    # DSMR Reader when USE_TZ is disabled.
+    return parsed.timestamp()
 
 
 class DsmrReaderClient:
@@ -105,6 +119,15 @@ class DsmrReaderClient:
         else:
             active_power = self._watts(delivered or 0.0) - self._watts(returned or 0.0)
 
+        # Staleness is based on the actual DSMR reading timestamp (the moment the
+        # meter produced the telegram), NOT on the poll time. If DSMR Reader stops
+        # receiving new telegrams its REST API still responds, but the reading
+        # timestamp stops advancing and the bridge will correctly report stale.
+        raw_timestamp = get_path(reading, "timestamp")
+        if raw_timestamp is None:
+            raw_timestamp = get_path(reading, "reading_timestamp")
+        reading_epoch = iso_epoch(raw_timestamp)
+
         result: dict[str, Any] = {
             "active_power_w": round(active_power, 3),
             "meter_model": "DSMR Reader bridge",
@@ -112,6 +135,9 @@ class DsmrReaderClient:
             "unique_id": os.getenv("BRIDGE_UNIQUE_ID", "dsmr-reader-bridge"),
             "bridge_timestamp": int(time.time()),
         }
+        if reading_epoch is not None:
+            result["dsmr_timestamp"] = reading_epoch
+
         for phase in ("l1", "l2", "l3"):
             voltage = first_number(reading, [f"phase_voltage_{phase}"]) or self.voltage
             phase_delivered = first_number(reading, [
@@ -122,23 +148,34 @@ class DsmrReaderClient:
                 f"phase_currently_returned_{phase}",
                 f"currently_returned_{phase}",
             ])
-            direct_current = first_number(reading, [
+            # DSMR Reader reports a measured per-phase current; prefer it for the
+            # HomeWizard active_current_lN_a field (the Solar Controller uses
+            # these values for its phase monitoring).
+            measured_current = first_number(reading, [
+                f"phase_power_current_{phase}",
                 f"active_current_{phase}_a",
                 f"phase_current_{phase}_a",
             ])
             direct_watts = first_number(reading, [f"active_power_{phase}_w"])
 
             if phase_delivered is not None or phase_returned is not None:
-                # DSMR Reader reports per-phase net kW; current is derived using
-                # the reported phase voltage so the value matches a real P1 meter.
                 watts = self._watts(phase_delivered or 0.0) - self._watts(phase_returned or 0.0)
-                current = watts / voltage if voltage else None
             elif direct_watts is not None:
                 watts = direct_watts
+            else:
+                watts = None
+
+            if measured_current is not None:
+                # Use DSMR's measured current (magnitude); keep the sign from the
+                # net phase power so exporting phases stay negative for the Solar
+                # Controller's phase monitoring.
+                current = abs(measured_current)
+                if watts is None and voltage:
+                    watts = current * voltage
+                elif watts is not None and watts < 0:
+                    current = -current
+            elif watts is not None:
                 current = watts / voltage if voltage else None
-            elif direct_current is not None:
-                current = direct_current
-                watts = current * voltage if voltage else None
             else:
                 continue
 
@@ -176,8 +213,15 @@ class BridgeState:
 
     def data(self) -> tuple[dict[str, Any] | None, float, str | None]:
         with self._lock:
-            age = time.time() - self._updated_at if self._updated_at else float("inf")
-            return self._data, age, self._error
+            now = time.time()
+            if self._data and self._data.get("dsmr_timestamp") is not None:
+                # Age of the actual meter reading, not of the last successful poll.
+                age = now - self._data["dsmr_timestamp"]
+            elif self._updated_at:
+                age = now - self._updated_at
+            else:
+                age = float("inf")
+            return self._data, max(age, 0.0), self._error
 
 
 class Handler(BaseHTTPRequestHandler):
