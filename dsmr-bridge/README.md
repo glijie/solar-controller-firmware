@@ -53,7 +53,7 @@ er geen poort-80-truc of sysctl nodig.
 | `POLL_INTERVAL_S` | `5` | Interval waarmee DSMR Reader wordt uitgelezen |
 | `DSMR_POWER_UNIT` | `kw` | Eenheid van DSMR-vermogensvelden: `kw` of `w` |
 | `PHASE_VOLTAGE_V` | `230` | Fallback-voltage als DSMR Reader geen fasevoltage rapporteert |
-| `STALE_AFTER_S` | `30` | Maximale leeftijd van de DSMR-meettimestamp; daarna HTTP 503 |
+| `STALE_AFTER_S` | `60` | Maximale leeftijd van de DSMR-meettimestamp; daarna HTTP 503 |
 | `BRIDGE_HOST` | `0.0.0.0` | Luisteradres |
 | `BRIDGE_PORT` | `80` | Luisterpoort |
 | `BRIDGE_UNIQUE_ID` | `dsmr-reader-bridge` | Identificatie in de response |
@@ -67,7 +67,9 @@ DSMR Reader. De bridge accepteert zowel een object als een lijst in `results`,
 DSMR-meting zelf** (`timestamp` in het DSMR Reader-antwoord), niet van het poll-
 moment. Blijft DSMR Reader bereikbaar maar komen er geen nieuwe metingen meer
 binnen (meter/telegram gestopt), dan loopt die timestamp niet meer op en geeft
-de bridge na `STALE_AFTER_S` seconde netjes `503`.
+de bridge na `STALE_AFTER_S` seconde netjes `503`. De standaard van 60 s is
+ruim boven de normale DSMR-meetcadans (~10-30 s) om valse 503's te voorkomen,
+maar detecteert een bevroren bron nog steeds snel.
 
 **Fasestromen:** wanneer DSMR Reader `phase_power_current_l1/l2/l3` (gemeten
 stroom) levert, gebruikt de bridge die rechtstreeks voor

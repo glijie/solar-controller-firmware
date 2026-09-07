@@ -192,7 +192,7 @@ class DsmrReaderClient:
 class BridgeState:
     def __init__(self, client: DsmrReaderClient) -> None:
         self.client = client
-        self.stale_after = env_number("STALE_AFTER_S", 30.0)
+        self.stale_after = env_number("STALE_AFTER_S", 60.0)
         self._lock = threading.Lock()
         self._data: dict[str, Any] | None = None
         self._updated_at = 0.0

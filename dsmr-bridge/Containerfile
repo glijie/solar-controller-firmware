@@ -20,7 +20,7 @@ ENV BRIDGE_HOST=0.0.0.0 \
     BRIDGE_PORT=80 \
     DSMR_POWER_UNIT=kw \
     PHASE_VOLTAGE_V=230 \
-    STALE_AFTER_S=30 \
+    STALE_AFTER_S=60 \
     POLL_INTERVAL_S=5
 
 HEALTHCHECK --interval=15s --timeout=5s --start-period=10s \
