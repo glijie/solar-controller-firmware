@@ -306,6 +306,7 @@ De Solar Controller is ontstaan uit de wens om:
 
 - 👉 [beschrijving multi conroller](docs/MULTI_CONTROLLER_MASTER_SLAVE_KORT.md)
 - 👉 [instellingen multi controller](docs/MULTI_CONTROLLER_MASTER_SLAVE_INSTELLEN.md)
+- 👉 [DSMR Reader HomeWizard bridge](dsmr-bridge/README.md)
 
 
 ---

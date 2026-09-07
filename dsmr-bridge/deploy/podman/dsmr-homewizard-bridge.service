@@ -1,0 +1,63 @@
+# Systemd user unit voor de DSMR Reader -> HomeWizard bridge.
+#
+# Werkende methode op de Raspberry Pi (podman 4.3.1):
+#   - Quadlet wordt NIET ondersteund (podman < 4.4)
+#   - podman-compose hangt bij het starten van deze container
+#   -> Unit genereren uit een draaiende container:
+#
+#   1. Image bouwen:
+#        cd ~/dsmr-bridge
+#        podman build -t localhost/dsmr-homewizard-bridge .
+#
+#   2. Container eenmalig starten (bridge.env met DSMR-instellingen):
+#        podman run -d --name dsmr-homewizard-bridge \
+#          --restart always -p 8080:80 \
+#          --env-file ~/dsmr-bridge/bridge.env \
+#          localhost/dsmr-homewizard-bridge
+#
+#   3. Unit genereren en installeren:
+#        podman generate systemd --new --name dsmr-homewizard-bridge \
+#          > ~/.config/systemd/user/dsmr-homewizard-bridge.service
+#        export XDG_RUNTIME_DIR=/run/user/1002
+#        systemctl --user daemon-reload
+#        systemctl --user enable --now dsmr-homewizard-bridge.service
+#
+#   (dsmrreader heeft linger aan -> service start ook na een reboot.)
+#
+# Onderstaande unit is de door podman gegenereerde, werkende versie.
+
+[Unit]
+Description=Podman container-dsmr-homewizard-bridge.service
+Documentation=man:podman-generate-systemd(1)
+Wants=network-online.target
+After=network-online.target
+RequiresMountsFor=%t/containers
+
+[Service]
+Environment=PODMAN_SYSTEMD_UNIT=%n
+Restart=always
+TimeoutStopSec=70
+ExecStartPre=/bin/rm \
+        -f %t/%n.ctr-id
+ExecStart=/usr/bin/podman run \
+        --cidfile=%t/%n.ctr-id \
+        --cgroups=no-conmon \
+        --rm \
+        --sdnotify=conmon \
+        --replace \
+        -d \
+        --name dsmr-homewizard-bridge \
+        -p 8080:80 \
+        --env-file /home/dsmrreader/dsmr-bridge/bridge.env localhost/dsmr-homewizard-bridge
+ExecStop=/usr/bin/podman stop \
+        --ignore -t 10 \
+        --cidfile=%t/%n.ctr-id
+ExecStopPost=/usr/bin/podman rm \
+        -f \
+        --ignore -t 10 \
+        --cidfile=%t/%n.ctr-id
+Type=notify
+NotifyAccess=all
+
+[Install]
+WantedBy=default.target
