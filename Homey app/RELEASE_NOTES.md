@@ -166,7 +166,7 @@ Bestaande gebruikers hoeven hun apparaten niet opnieuw te koppelen. Nieuwe capab
 
 # installatie Homey app via App store (test)
 
-[klik Hier](https://homey.app/nl-nl/app/com.patrick.solarcontroller/Solar-Controller/test/)
+[klik Hier](https://homey.app/nl-nl/app/com.patrick.solarcontroller/Solar-Controller/)
 
 
 ```
