@@ -2,6 +2,8 @@
 
 Release notes voor de Homey app update voor Solar Controller
 
+[klik hier](https://homey.app/nl-nl/app/com.patrick.solarcontroller/Solar-Controller/) voor installeren Homey app
+
 ## Wat zit erin
 
 Deze update brengt de Homey app weer gelijk met de actuele Solar Controller firmware en voegt ondersteuning toe voor meerdere ESP controllers in dezelfde Homey installatie.
@@ -164,7 +166,7 @@ Voor oudere Homey hardware kan `legacy` gebruikt worden om rustiger te pollen.
 
 Bestaande gebruikers hoeven hun apparaten niet opnieuw te koppelen. Nieuwe capabilities en instellingen worden bij app-start gemigreerd.
 
-# installatie Homey app via App store (test)
+# installatie Homey app via App store
 
 [klik Hier](https://homey.app/nl-nl/app/com.patrick.solarcontroller/Solar-Controller/)
 
