@@ -105,6 +105,22 @@ class TestBridge(unittest.TestCase):
         })
         self.assertIn("dsmr_timestamp", result)
 
+    def test_exposes_gas_reading_when_present(self):
+        client = DsmrReaderClient()
+        result = client._convert({
+            "electricity_currently_delivered": 1.0,
+            "extra_device_delivered": 5717.619,
+            "extra_device_timestamp": "2026-09-07T13:43:51+02:00",
+        })
+        self.assertEqual(result["total_gas_m3"], 5717.619)
+        self.assertEqual(result["gas_timestamp"], 260907134351)
+
+    def test_omits_gas_fields_without_gas_meter(self):
+        client = DsmrReaderClient()
+        result = client._convert({"electricity_currently_delivered": 1.0})
+        self.assertNotIn("total_gas_m3", result)
+        self.assertNotIn("gas_timestamp", result)
+
 
 class FakeDsmrHandler(BaseHTTPRequestHandler):
     def do_GET(self):  # noqa: N802

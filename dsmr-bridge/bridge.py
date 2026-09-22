@@ -49,17 +49,28 @@ def env_number(name: str, default: float) -> float:
     return default if value is None else value
 
 
-def iso_epoch(value: Any) -> float | None:
-    """Parse an ISO-8601 timestamp (with or without offset) to epoch seconds."""
+def iso_datetime(value: Any) -> datetime | None:
+    """Parse an ISO-8601 timestamp (with or without offset)."""
     if value is None:
         return None
     try:
-        parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+        return datetime.fromisoformat(str(value).replace("Z", "+00:00"))
     except ValueError:
         return None
+
+
+def iso_epoch(value: Any) -> float | None:
+    """Parse an ISO-8601 timestamp (with or without offset) to epoch seconds."""
+    parsed = iso_datetime(value)
     # Naive timestamps are interpreted as server-local time, which matches
     # DSMR Reader when USE_TZ is disabled.
-    return parsed.timestamp()
+    return None if parsed is None else parsed.timestamp()
+
+
+def homewizard_gas_timestamp(value: Any) -> int | None:
+    """HomeWizard reports the gas timestamp as YYMMDDhhmmss."""
+    parsed = iso_datetime(value)
+    return None if parsed is None else int(parsed.strftime("%y%m%d%H%M%S"))
 
 
 class DsmrReaderClient:
@@ -137,6 +148,14 @@ class DsmrReaderClient:
         }
         if reading_epoch is not None:
             result["dsmr_timestamp"] = reading_epoch
+
+        # Optional gas meter (M-Bus), exposed with HomeWizard P1 field names.
+        gas_delivered = first_number(reading, ["extra_device_delivered", "total_gas_m3"])
+        if gas_delivered is not None:
+            result["total_gas_m3"] = round(gas_delivered, 3)
+        gas_timestamp = homewizard_gas_timestamp(get_path(reading, "extra_device_timestamp"))
+        if gas_timestamp is not None:
+            result["gas_timestamp"] = gas_timestamp
 
         for phase in ("l1", "l2", "l3"):
             voltage = first_number(reading, [f"phase_voltage_{phase}"]) or self.voltage
