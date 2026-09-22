@@ -105,6 +105,37 @@ class TestBridge(unittest.TestCase):
         })
         self.assertIn("dsmr_timestamp", result)
 
+    def test_exposes_tariff_totals_as_homewizard_fields(self):
+        client = DsmrReaderClient()
+        result = client._convert({
+            "electricity_currently_delivered": 1.0,
+            "electricity_delivered_1": 15903.486,
+            "electricity_delivered_2": 8246.746,
+            "electricity_returned_1": 4748.183,
+            "electricity_returned_2": 11238.748,
+        })
+        self.assertEqual(result["total_power_import_t1_kwh"], 15903.486)
+        self.assertEqual(result["total_power_import_t2_kwh"], 8246.746)
+        self.assertEqual(result["total_power_export_t1_kwh"], 4748.183)
+        self.assertEqual(result["total_power_export_t2_kwh"], 11238.748)
+
+    def test_exposes_partial_tariff_totals(self):
+        # A single-tariff meter only reports tariff 1; the missing fields are left out.
+        client = DsmrReaderClient()
+        result = client._convert({
+            "electricity_currently_delivered": 1.0,
+            "electricity_delivered_1": 1234.567,
+        })
+        self.assertEqual(result["total_power_import_t1_kwh"], 1234.567)
+        self.assertNotIn("total_power_import_t2_kwh", result)
+        self.assertNotIn("total_power_export_t1_kwh", result)
+
+    def test_omits_tariff_totals_without_split(self):
+        client = DsmrReaderClient()
+        result = client._convert({"electricity_currently_delivered": 1.0})
+        self.assertNotIn("total_power_import_t1_kwh", result)
+        self.assertNotIn("total_power_export_t2_kwh", result)
+
 
 class FakeDsmrHandler(BaseHTTPRequestHandler):
     def do_GET(self):  # noqa: N802

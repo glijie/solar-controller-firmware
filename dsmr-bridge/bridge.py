@@ -186,6 +186,20 @@ class DsmrReaderClient:
             if voltage is not None:
                 result[f"active_voltage_{phase}_v"] = round(voltage, 1)
 
+        # Cumulative meter readings per tariff (1 = dal, 2 = piek), exposed with
+        # the HomeWizard P1 field names so the Solar Controller sees the keys it
+        # would get from a real P1 meter. Fields the meter does not report are
+        # left out, matching HomeWizard's behaviour on a single-tariff meter.
+        for dsmr_key, homewizard_key in (
+            ("electricity_delivered_1", "total_power_import_t1_kwh"),
+            ("electricity_delivered_2", "total_power_import_t2_kwh"),
+            ("electricity_returned_1", "total_power_export_t1_kwh"),
+            ("electricity_returned_2", "total_power_export_t2_kwh"),
+        ):
+            total = first_number(reading, [dsmr_key, homewizard_key])
+            if total is not None:
+                result[homewizard_key] = round(total, 3)
+
         return result
 
 

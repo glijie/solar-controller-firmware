@@ -14,6 +14,9 @@ De bridge levert onder andere:
   gemeten `phase_power_current_lN` wanneer beschikbaar, anders afgeleid)
 - `active_power_l1_w`, `active_power_l2_w`, `active_power_l3_w`
 - `active_voltage_l1_v`, `active_voltage_l2_v`, `active_voltage_l3_v`
+- `total_power_import_t1_kwh`, `total_power_import_t2_kwh`,
+  `total_power_export_t1_kwh`, `total_power_export_t2_kwh` (dal/piek; velden die
+  de meter niet rapporteert worden weggelaten)
 
 In de Solar Controller vul je als meteradres **HomeWizard P1** in met
 `IP:poort`, bijvoorbeeld `192.168.15.233:8080`.
