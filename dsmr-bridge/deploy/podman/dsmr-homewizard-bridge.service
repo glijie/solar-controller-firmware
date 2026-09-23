@@ -13,11 +13,18 @@
 #        cp ~/dsmr-bridge/bridge.env.example ~/dsmr-bridge/bridge.env
 #        nano ~/dsmr-bridge/bridge.env
 #
-#   3. Container eenmalig starten:
+#   3. Container eenmalig starten. De bind-mount laat de container bridge.py
+#      rechtstreeks uit ~/dsmr-bridge lezen, zodat een codewijziging alleen
+#      kopieren + herstarten is in plaats van een volledige image-rebuild
+#      (de vfs-storage-driver op een Pi 3B maakt dat erg traag):
 #        podman run -d --name dsmr-homewizard-bridge \
 #          --restart always -p 8080:80 \
 #          --env-file ~/dsmr-bridge/bridge.env \
+#          -v ~/dsmr-bridge/bridge.py:/app/bridge.py:ro \
 #          localhost/dsmr-homewizard-bridge
+#
+#      De mount dekt ALLEEN bridge.py. Wijzig je de Containerfile, dan is er
+#      nog wel een echte 'podman build' nodig.
 #
 #   4. Unit genereren en installeren:
 #        podman generate systemd --new --name dsmr-homewizard-bridge \
@@ -55,7 +62,8 @@ ExecStart=/usr/bin/podman run \
         -d \
         --name dsmr-homewizard-bridge \
         -p 8080:80 \
-        --env-file /home/dsmrreader/dsmr-bridge/bridge.env localhost/dsmr-homewizard-bridge
+        --env-file /home/dsmrreader/dsmr-bridge/bridge.env \
+        -v /home/dsmrreader/dsmr-bridge/bridge.py:/app/bridge.py:ro localhost/dsmr-homewizard-bridge
 ExecStop=/usr/bin/podman stop \
         --ignore -t 10 \
         --cidfile=%t/%n.ctr-id

@@ -127,10 +127,13 @@ podman build -t localhost/dsmr-homewizard-bridge .
 cp ~/dsmr-bridge/bridge.env.example ~/dsmr-bridge/bridge.env
 nano ~/dsmr-bridge/bridge.env
 
-# 3. Container starten (env-bestand met DSMR-instellingen)
+# 3. Container starten (env-bestand met DSMR-instellingen).
+#    De bind-mount laat de container bridge.py rechtstreeks uit
+#    ~/dsmr-bridge lezen; een codewijziging is dan kopieren + herstarten.
 podman run -d --name dsmr-homewizard-bridge \
   --restart always -p 8080:80 \
   --env-file ~/dsmr-bridge/bridge.env \
+  -v ~/dsmr-bridge/bridge.py:/app/bridge.py:ro \
   localhost/dsmr-homewizard-bridge
 
 # 4. Systemd-unit genereren en installeren (overleeft reboot)
@@ -149,6 +152,32 @@ podman ps                              # container 'dsmr-homewizard-bridge' moet
 curl http://127.0.0.1:8080/health      # {"ok":true,...}
 curl http://127.0.0.1:8080/api/v1/data
 journalctl --user -u dsmr-homewizard-bridge.service -f
+```
+
+### `bridge.py` aanpassen zonder rebuild
+
+De container leest `bridge.py` via een **read-only bind-mount** uit
+`~/dsmr-bridge/`. Een codewijziging is daardoor alleen kopiëren en herstarten:
+
+```sh
+scp dsmr-bridge/bridge.py dsmrreader@192.168.15.233:dsmr-bridge/bridge.py
+ssh dsmrreader@192.168.15.233 \
+  'export XDG_RUNTIME_DIR=/run/user/1002; \
+   systemctl --user restart dsmr-homewizard-bridge.service'
+```
+
+Op een Raspberry Pi 3B scheelt dat minuten: de `vfs`-storage-driver kopieert bij
+elke build de volledige image-laag opnieuw.
+
+Wijzig je de `Containerfile` (andere Python-versie, andere standaardwaarde), dan
+is er **wel** een echte `podman build` nodig — de mount dekt uitsluitend
+`bridge.py`.
+
+Controleer of de mount actief is:
+
+```sh
+md5sum ~/dsmr-bridge/bridge.py
+podman exec dsmr-homewizard-bridge md5sum /app/bridge.py   # moet hetzelfde zijn
 ```
 
 ### Meteradres: gebruik IP:poort
