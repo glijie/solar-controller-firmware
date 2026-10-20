@@ -1,0 +1,12 @@
+Firmware: v2026.09.19.02
+Datum: 2026-09-19
+
+Wijziging v2026.09.19.02:
+- Eigen toggle: Gebruik boiler-doeltemperatuur bij ELEC-blokken.
+- N-blokkenregeling gebruikt uitsluitend de expliciet geselecteerde boilersensor (legTempAddrStr).
+- Geen fallback naar controller-temperatuurvrijgave of eerste sensor.
+- Toggle AAN: AUTO_ELEC stopt bij ingestelde boiler-doeltemperatuur.
+- Toggle UIT: doeltemperatuur breekt de gekozen N-run niet af.
+- Nieuwe warmtevraag bij opnieuw afkoelen tot doeltemperatuur - 5 °C.
+- Werkt onafhankelijk van Legionella Planning en Legionella Temperatuur-modus gebruiken.
+- Nieuwe instelling via webinterface, MQTT/Home Assistant en REST/Homey beschikbaar.
