@@ -64,6 +64,9 @@ extern bool  heatExecElecWhenCheaper;
 extern bool  heatCheapBlocksEnabled;
 extern bool  heatCheapUseBoilerTarget;
 extern int   heatCheapNBlocks;
+extern uint8_t heatCheapDayParts;
+extern int   heatCheapBoundary1Min;
+extern int   heatCheapBoundary2Min;
 extern float gasKwhPerM3;
 extern float gasBoilerEff;
 extern float elecBoilerEff;
@@ -159,6 +162,9 @@ constexpr bool  kDefaultHeatExecElecWhenCheaper = false;
 constexpr bool  kDefaultHeatCheapBlocksEnabled = false;
 constexpr bool  kDefaultHeatCheapUseBoilerTarget = false;
 constexpr int   kDefaultHeatCheapNBlocks = 4;
+constexpr uint8_t kDefaultHeatCheapDayParts = 1;
+constexpr int   kDefaultHeatCheapBoundary1Min = 7 * 60;
+constexpr int   kDefaultHeatCheapBoundary2Min = 19 * 60;
 constexpr float kDefaultGasKwhPerM3 = 9.77f;
 constexpr float kDefaultGasBoilerEff = 0.90f;
 constexpr float kDefaultElecBoilerEff = 1.00f;
@@ -273,6 +279,15 @@ void clampAll() {
 
   if (heatCheapNBlocks < 1) heatCheapNBlocks = 1;
   if (heatCheapNBlocks > kNpMaxPoints) heatCheapNBlocks = kNpMaxPoints;
+  if (heatCheapDayParts < 1 || heatCheapDayParts > 2) heatCheapDayParts = 1;
+  if (heatCheapBoundary1Min < 0) heatCheapBoundary1Min = 0;
+  if (heatCheapBoundary1Min > 23 * 60 + 59) heatCheapBoundary1Min = 23 * 60 + 59;
+  if (heatCheapBoundary2Min < 0) heatCheapBoundary2Min = 0;
+  if (heatCheapBoundary2Min > 23 * 60 + 59) heatCheapBoundary2Min = 23 * 60 + 59;
+  if (heatCheapBoundary1Min == heatCheapBoundary2Min) {
+    heatCheapBoundary1Min = kDefaultHeatCheapBoundary1Min;
+    heatCheapBoundary2Min = kDefaultHeatCheapBoundary2Min;
+  }
 
   if (sunSchedMode > 3) sunSchedMode = 0;
   if (sunWinStartMin < 0) sunWinStartMin = 0;
@@ -352,6 +367,9 @@ void loadConfig() {
   heatCheapBlocksEnabled    = prefs.getBool("heat_ch_en", kDefaultHeatCheapBlocksEnabled);
   heatCheapUseBoilerTarget = prefs.getBool("heat_ch_bt", kDefaultHeatCheapUseBoilerTarget);
   heatCheapNBlocks          = prefs.getInt ("heat_ch_n",  kDefaultHeatCheapNBlocks);
+  heatCheapDayParts         = prefs.getUChar("heat_ch_dp", kDefaultHeatCheapDayParts);
+  heatCheapBoundary1Min     = prefs.getInt ("heat_ch_t1", kDefaultHeatCheapBoundary1Min);
+  heatCheapBoundary2Min     = prefs.getInt ("heat_ch_t2", kDefaultHeatCheapBoundary2Min);
   gasKwhPerM3               = prefs.getFloat("heat_kwhm3", kDefaultGasKwhPerM3);
   gasBoilerEff              = prefs.getFloat("heat_geff",  kDefaultGasBoilerEff);
   elecBoilerEff             = prefs.getFloat("heat_eeff",  kDefaultElecBoilerEff);
@@ -499,6 +517,9 @@ void saveConfig() {
   prefs.putBool ("heat_ch_en",   heatCheapBlocksEnabled);
   prefs.putBool ("heat_ch_bt",   heatCheapUseBoilerTarget);
   prefs.putInt  ("heat_ch_n",    heatCheapNBlocks);
+  prefs.putUChar("heat_ch_dp",   heatCheapDayParts);
+  prefs.putInt  ("heat_ch_t1",   heatCheapBoundary1Min);
+  prefs.putInt  ("heat_ch_t2",   heatCheapBoundary2Min);
   prefs.putFloat("heat_kwhm3",  gasKwhPerM3);
   prefs.putFloat("heat_geff",   gasBoilerEff);
   prefs.putFloat("heat_eeff",   elecBoilerEff);

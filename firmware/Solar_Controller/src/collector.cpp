@@ -7,12 +7,12 @@
 #include <time.h>
 
 // ---------------------------
-// Configuratie van de collector
+// Config (Patrick)
 // ---------------------------
-// Endpoint van de Cloudflare Worker:
+// Endpoint van jouw Cloudflare Worker:
 static const char* COLLECTOR_URL = "https://flat-firefly-9d53.p-blijie.workers.dev/ping";
 
-// Publieke apparaatcode voor /ping; /stats gebruikt een aparte private beheerderssleutel.
+// Shared secret header (later maken we dit instelbaar / secret store):
 static const char* COLLECTOR_KEY = "SOLAR_CONTROLLER_SECRET_1";
 
 // ---------------------------
@@ -22,8 +22,8 @@ static bool g_collectorInit = false;
 static bool g_sentThisBoot  = false;
 static uint32_t g_bootMs    = 0;
 
-// Dagelijkse melding met persistent last_sent.
-// Bij opstarten wordt ook een melding verstuurd.
+// Stap 2A (Patrick): 1x per 24 uur ping + persistent last_sent.
+// Voor testen wil Patrick óók bij reboot een ping (voorlopig).
 // Later kunnen we de boot-ping uitschakelen door COLLECTOR_SEND_ON_BOOT=false.
 static const bool COLLECTOR_SEND_ON_BOOT = true;
 

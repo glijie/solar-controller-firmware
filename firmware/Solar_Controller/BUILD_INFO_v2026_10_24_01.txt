@@ -1,0 +1,11 @@
+Firmware: v2026.10.24.01
+Datum: 2026-10-24
+
+Wijziging:
+- Instelbaar aantal dagdelen voor de goedkoopste aaneengesloten ELEC-blokken: 1 of 2.
+- Standaard blijft 1 dagdeel en daarmee de bestaande werking ongewijzigd.
+- Bij 2 dagdelen verschijnen twee instelbare tijdgrenzen, standaard 07:00 en 19:00.
+- Daarmee ontstaan standaard de onafhankelijke zoekvensters 19:00–07:00 en 07:00–19:00.
+- Elk dagdeel kiest zelfstandig maximaal N aaneengesloten blokken waarin ELEC goedkoper is dan GAS.
+- Het nachtvenster kan over 00:00 heen plannen wanneer morgenprijzen beschikbaar zijn.
+- Overige regeling ongewijzigd.

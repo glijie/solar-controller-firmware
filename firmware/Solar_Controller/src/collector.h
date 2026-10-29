@@ -4,8 +4,8 @@
 /*
   Solar Controller — Collector Telemetry (step 127 COLLECTOR_PING_DAILY_V1)
   -----------------------------------------------------------------------
-  Doel:
-    - 1x per boot een 'ping' sturen naar de Cloudflare Worker collector (voor testen voorlopig)
+  Doel (Patrick):
+    - 1x per boot een 'ping' sturen naar jouw Cloudflare Worker collector (voor testen voorlopig)
     - 1x per 24 uur een 'ping' sturen (persistent last_sent via Preferences)
     - Payload: serial + firmware
     - ZO MINIMAAL MOGELIJK: geen invloed op bestaande werking

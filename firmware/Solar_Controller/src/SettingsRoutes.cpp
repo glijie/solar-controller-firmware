@@ -95,6 +95,18 @@ static bool readBoolSec(const char* key, bool currentValue, const char* sectionN
   // Otherwise (same section + missing) means OFF
   return false;
 }
+
+static bool readTimeMinutesArg(const char* key, int& targetMin) {
+  if (!server.hasArg(key)) return false;
+  String t = server.arg(key);
+  t.trim();
+  const int c = t.indexOf(':');
+  if (c <= 0) return false;
+  const int h = constrain(t.substring(0, c).toInt(), 0, 23);
+  const int m = constrain(t.substring(c + 1).toInt(), 0, 59);
+  targetMin = h * 60 + m;
+  return true;
+}
 // ----------------------------------------------------------------------------
 
 void handleSettingsSaveReboot() {
@@ -187,6 +199,10 @@ heatExecElecWhenCheaper = readBoolSec("heat_exec_el", heatExecElecWhenCheaper, "
 heatCheapBlocksEnabled = readBoolSec("heat_ch_en", heatCheapBlocksEnabled, "gas");
 heatCheapUseBoilerTarget = readBoolSec("heat_ch_bt", heatCheapUseBoilerTarget, "gas");
 if (server.hasArg("heat_ch_n")) heatCheapNBlocks = server.arg("heat_ch_n").toInt();
+if (server.hasArg("heat_ch_dp")) heatCheapDayParts = (uint8_t)constrain(server.arg("heat_ch_dp").toInt(), 1, 2);
+readTimeMinutesArg("heat_ch_t1", heatCheapBoundary1Min);
+readTimeMinutesArg("heat_ch_t2", heatCheapBoundary2Min);
+if (heatCheapBoundary1Min == heatCheapBoundary2Min) { heatCheapBoundary1Min = 7 * 60; heatCheapBoundary2Min = 19 * 60; }
 if (server.hasArg("heat_kwhm3")) { String s = server.arg("heat_kwhm3"); s.replace(',', '.'); gasKwhPerM3 = s.toFloat(); }
 if (server.hasArg("heat_geff"))  { String s = server.arg("heat_geff");  s.replace(',', '.'); gasBoilerEff = s.toFloat(); }
 if (server.hasArg("heat_eeff"))  { String s = server.arg("heat_eeff");  s.replace(',', '.'); elecBoilerEff = s.toFloat(); elecBoilerEff = constrain(elecBoilerEff, 0.0f, 10.0f); }
@@ -370,6 +386,9 @@ const bool    oldHeatExecElecWhenCheaper = heatExecElecWhenCheaper;
 const bool    oldHeatCheapBlocksEnabled = heatCheapBlocksEnabled;
 const bool    oldHeatCheapUseBoilerTarget = heatCheapUseBoilerTarget;
 const int     oldHeatCheapNBlocks = heatCheapNBlocks;
+const uint8_t oldHeatCheapDayParts = heatCheapDayParts;
+const int     oldHeatCheapBoundary1Min = heatCheapBoundary1Min;
+const int     oldHeatCheapBoundary2Min = heatCheapBoundary2Min;
 const float   oldGasKwhPerM3          = gasKwhPerM3;
 const float   oldGasBoilerEff         = gasBoilerEff;
 const float   oldElecBoilerEff        = elecBoilerEff;
@@ -490,6 +509,10 @@ heatExecElecWhenCheaper = readBoolSec("heat_exec_el", heatExecElecWhenCheaper, "
 heatCheapBlocksEnabled = readBoolSec("heat_ch_en", heatCheapBlocksEnabled, "gas");
 heatCheapUseBoilerTarget = readBoolSec("heat_ch_bt", heatCheapUseBoilerTarget, "gas");
 if (server.hasArg("heat_ch_n")) heatCheapNBlocks = server.arg("heat_ch_n").toInt();
+if (server.hasArg("heat_ch_dp")) heatCheapDayParts = (uint8_t)constrain(server.arg("heat_ch_dp").toInt(), 1, 2);
+readTimeMinutesArg("heat_ch_t1", heatCheapBoundary1Min);
+readTimeMinutesArg("heat_ch_t2", heatCheapBoundary2Min);
+if (heatCheapBoundary1Min == heatCheapBoundary2Min) { heatCheapBoundary1Min = 7 * 60; heatCheapBoundary2Min = 19 * 60; }
 
 if (server.hasArg("heat_kwhm3")) { String s = server.arg("heat_kwhm3"); s.replace(',', '.'); gasKwhPerM3 = s.toFloat(); }
 if (server.hasArg("heat_geff"))  { String s = server.arg("heat_geff");  s.replace(',', '.'); gasBoilerEff = s.toFloat(); }
@@ -678,6 +701,9 @@ const bool heatChanged =
     (heatCheapBlocksEnabled != oldHeatCheapBlocksEnabled) ||
     (heatCheapUseBoilerTarget != oldHeatCheapUseBoilerTarget) ||
     (heatCheapNBlocks != oldHeatCheapNBlocks) ||
+    (heatCheapDayParts != oldHeatCheapDayParts) ||
+    (heatCheapBoundary1Min != oldHeatCheapBoundary1Min) ||
+    (heatCheapBoundary2Min != oldHeatCheapBoundary2Min) ||
     (gasKwhPerM3      != oldGasKwhPerM3)    ||
     (gasBoilerEff     != oldGasBoilerEff)   ||
     (elecBoilerEff      != oldElecBoilerEff)    ||
@@ -1103,6 +1129,20 @@ page += "<div class='row'><div class='k'>Alleen verwarmen tijdens goedkoopste aa
 page += String("<span class='switch ") + ((heatCheapBlocksEnabled) ? "on" : "") + "' onclick='sw(this,false)'><input type='checkbox' name='heat_ch_en' value='1' " + ((heatCheapBlocksEnabled) ? "checked" : "") + "><span class='slider'></span></span>";
 page += "</div></div>";
 
+page += "<label>Aantal dagdelen voor goedkope ELEC-blokken</label>";
+page += "<select id='heat_ch_dp' name='heat_ch_dp' onchange=\"document.getElementById('heat_ch_times').style.display=(this.value==='2'?'block':'none')\">";
+page += String("<option value='1' ") + (heatCheapDayParts == 1 ? "selected" : "") + ">1 (standaard)</option>";
+page += String("<option value='2' ") + (heatCheapDayParts == 2 ? "selected" : "") + ">2</option>";
+page += "</select>";
+page += "<div class='help'>1 behoudt de huidige planning vanaf NU tot 24:00. Bij 2 worden twee onafhankelijke dagdelen gebruikt, elk met een eigen selectie van maximaal N goedkope aaneengesloten ELEC-blokken.</div>";
+page += String("<div id='heat_ch_times' style='display:") + (heatCheapDayParts == 2 ? "block" : "none") + ";'>";
+page += "<div class='grid2'>";
+page += "<div><label class='mini'>Tijd 1</label><input type='time' name='heat_ch_t1' step='900' value='" + fmtHm(heatCheapBoundary1Min) + "'></div>";
+page += "<div><label class='mini'>Tijd 2</label><input type='time' name='heat_ch_t2' step='900' value='" + fmtHm(heatCheapBoundary2Min) + "'></div>";
+page += "</div>";
+page += "<div class='help'>De tijden zijn de grenzen van de twee dagdelen. Met 07:00 en 19:00 zoekt de controller apart binnen 19:00–07:00 en 07:00–19:00.</div>";
+page += "</div>";
+
 page += "<div class='row'><div class='k'>Gebruik boiler-doeltemperatuur bij ELEC-blokken</div><div class='v'>";
 page += String("<span class='switch ") + ((heatCheapUseBoilerTarget) ? "on" : "") + "' onclick='sw(this,false)'><input type='checkbox' name='heat_ch_bt' value='1' " + ((heatCheapUseBoilerTarget) ? "checked" : "") + "><span class='slider'></span></span>";
 page += "</div></div>";
@@ -1114,7 +1154,7 @@ page += "<input type='number' id='heat_ch_n' name='heat_ch_n' value='" + String(
   int heatBlockMin = (npResMin == 15) ? 15 : 60;
   int totalMin = heatCheapNBlocks * heatBlockMin;
   String duur = (totalMin % 60 == 0) ? (String(totalMin / 60) + " uur") : (String(totalMin) + " minuten");
-  page += "<div class='help'>N is een maximum. Bij de huidige prijsinstelling is 1 blok " + String(heatBlockMin) + " minuten; " + String(heatCheapNBlocks) + " blokken is maximaal " + duur + ". Bij een nieuw plan worden alle resterende blokken van vandaag bekeken en wordt de goedkoopste aaneengesloten ELEC-reeks gekozen. Een GAS-blok wordt nooit toegevoegd. Zijn nergens N opeenvolgende ELEC-blokken beschikbaar, dan wordt de langste geschikte reeks onder N gebruikt. Om 00:00 begint een nieuw plan.</div>";
+  page += "<div class='help'>N is een maximum. Bij de huidige prijsinstelling is 1 blok " + String(heatBlockMin) + " minuten; " + String(heatCheapNBlocks) + " blokken is maximaal " + duur + ". Een GAS-blok wordt nooit toegevoegd. Zijn nergens N opeenvolgende ELEC-blokken beschikbaar, dan wordt de langste geschikte reeks onder N gebruikt. Bij 1 dagdeel blijft de bestaande planning tot 24:00 gelden; bij 2 dagdelen gebeurt dezelfde selectie onafhankelijk binnen elk ingesteld dagdeel.</div>";
   page += "<div class='help'>Een expliciet gekozen boilersensor kan nieuwe warmtevraag herkennen wanneer de temperatuur na opwarming weer minimaal 5 °C onder de ingestelde boiler-doeltemperatuur komt. Met 'Gebruik boiler-doeltemperatuur bij ELEC-blokken' AAN stopt AUTO_ELEC bovendien bij de doeltemperatuur; met deze toggle UIT wordt de gekozen N-run niet door de doeltemperatuur afgebroken.</div>";
 }
 

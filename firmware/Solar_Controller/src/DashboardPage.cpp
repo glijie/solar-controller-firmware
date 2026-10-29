@@ -854,7 +854,7 @@ if (dashShowSunWindowLabel && (sunSchedMode == 1 || sunSchedMode == 2)) {
   page += "</div>";
 
   // ===== Dashboard acties (compact, eigen kader binnen Live status) =====
-  // Indeling (step64): Forceer verwarmen + Legionella programma direct onder de live KPI's,
+  // Patrick wens (step64): Forceer verwarmen + Legionella programma direct onder de live KPI's,
   // binnen hetzelfde grote 'Live status' kader, maar wel in een eigen sub-kader (zelfde stijl).
   page += "<div class='actionCard'>";
 
@@ -890,7 +890,7 @@ if (dashShowSunWindowLabel && (sunSchedMode == 1 || sunSchedMode == 2)) {
 
   
 // ===== Temperatuur (compact) =====
-// Zichtbaarheid: alleen zichtbaar als er minimaal 1 DS18B20 écht aanwezig is (enabled + present).
+// Patrick wens: alleen zichtbaar als er minimaal 1 DS18B20 écht aanwezig is (enabled + present).
 // Als er wel sensoren zijn maar nog geen geldige meetwaarde, tonen we een korte hint.
   bool showTempsCard = false;
   bool anyTempsValue = false;

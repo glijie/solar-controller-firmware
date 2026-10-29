@@ -201,7 +201,9 @@ void applyPriceBoostMode() {
 }
 
 // ================================================================================================
-// Slim ELEC uitvoeren: goedkoopste aaneengesloten blokken binnen de resterende kalenderdag.
+// Slim ELEC uitvoeren: goedkoopste aaneengesloten blokken.
+// Met 1 dagdeel blijft de bestaande planning vanaf NU tot 24:00 exact behouden.
+// Met 2 dagdelen wordt onafhankelijk gepland tot de eerstvolgende ingestelde tijdgrens.
 //
 // step315 regels:
 // - N is een maximum, geen minimum.
@@ -224,6 +226,43 @@ void applyPriceBoostMode() {
 
 static String heatCheapPeriodDate = "";
 static constexpr float HEAT_CHEAP_REARM_DELTA_C = 5.0f;
+
+struct HeatCheapDayPartWindow {
+  String key;
+  String deadlineDate;
+  int deadlineMin = 0;
+};
+
+// Bij 2 dagdelen zijn de twee ingestelde tijden de grenzen van de dagdelen.
+// Voor 07:00 en 19:00 ontstaan dus automatisch 19:00->07:00 en 07:00->19:00.
+static bool heatCheapGetCurrentDayPartWindow(HeatCheapDayPartWindow& out) {
+  if (heatCheapDayParts != 2 || !timeIsValid()) return false;
+
+  int a = constrain(heatCheapBoundary1Min, 0, 23 * 60 + 59);
+  int b = constrain(heatCheapBoundary2Min, 0, 23 * 60 + 59);
+  if (a == b) return false;
+  if (a > b) { const int t = a; a = b; b = t; }
+
+  const time_t now = time(nullptr);
+  const String today = isoDateLocal(now);
+  struct tm tmNow;
+  localtime_r(&now, &tmNow);
+  const int nowMin = tmNow.tm_hour * 60 + tmNow.tm_min;
+
+  if (nowMin < a) {
+    out.deadlineDate = today;
+    out.deadlineMin = a;
+  } else if (nowMin < b) {
+    out.deadlineDate = today;
+    out.deadlineMin = b;
+  } else {
+    out.deadlineDate = isoDateAddDays(today, 1);
+    out.deadlineMin = a;
+  }
+
+  out.key = out.deadlineDate + "@" + String(out.deadlineMin);
+  return true;
+}
 
 // Temperatuur-warmtevraag hoort bij de expliciet geselecteerde boilersensor uit Legionella-instellingen.
 // De geselecteerde sensor mag leeg zijn; dan blijft prijsplanning volledig leidend.
@@ -413,6 +452,52 @@ static bool heatCheapGetPointOffsetFromNow(int offset, String& date, int& idx, i
   return isfinite(elecCt);
 }
 
+// Variant voor 2 dagdelen: loopt vanaf het huidige blok door in morgen als de prijzen al beschikbaar zijn.
+// De bestaande 1-dagdeelmodus gebruikt deze functie niet en behoudt dus exact de oude daggrens.
+static bool heatCheapGetPointOffsetFromNowAcrossTomorrow(int offset, String& date, int& idx, int& intervalMin, float& elecCt) {
+  if (offset < 0 || !timeIsValid() || !npEnabled || elecPriceSource != 0 || npTodayN <= 0) return false;
+
+  const time_t now = time(nullptr);
+  const String today = isoDateLocal(now);
+  if (today != npDateToday) return false;
+
+  int todayInterval = npIntervalMinToday;
+  if (todayInterval != 15 && todayInterval != 60) todayInterval = npResMin;
+  if (todayInterval != 15 && todayInterval != 60) return false;
+
+  struct tm tmNow;
+  localtime_r(&now, &tmNow);
+  const int nowMin = tmNow.tm_hour * 60 + tmNow.tm_min;
+  const int currentIdx = nowMin / todayInterval;
+  if (currentIdx < 0 || currentIdx >= npTodayN) return false;
+
+  const int remainingToday = npTodayN - currentIdx;
+  if (offset < remainingToday) {
+    idx = currentIdx + offset;
+    intervalMin = todayInterval;
+    date = npDateToday;
+    const float spot = npTodayCt[idx];
+    elecCt = npInclTaxEnabled ? npTotalCtKwh(spot) : spot;
+    return isfinite(elecCt);
+  }
+
+  const int tomorrowOffset = offset - remainingToday;
+  if (tomorrowOffset < 0 || npTomorrowN <= 0) return false;
+  if (npDateTomorrow != isoDateAddDays(today, 1)) return false;
+
+  int tomorrowInterval = npIntervalMinTomorrow;
+  if (tomorrowInterval != 15 && tomorrowInterval != 60) tomorrowInterval = npResMin;
+  if (tomorrowInterval != todayInterval) return false;
+  if (tomorrowOffset >= npTomorrowN) return false;
+
+  idx = tomorrowOffset;
+  intervalMin = tomorrowInterval;
+  date = npDateTomorrow;
+  const float spot = npTomorrowCt[idx];
+  elecCt = npInclTaxEnabled ? npTotalCtKwh(spot) : spot;
+  return isfinite(elecCt);
+}
+
 static bool heatCheapEconomicDecisionForPoint(const String& date, int idx, int intervalMin, float elecCt,
                                                bool& elecCheaper, float* elecHeatCostOut = nullptr) {
   elecCheaper = false;
@@ -452,9 +537,17 @@ static bool heatCheapPlanContainsCurrentBlock() {
   if (!heatCheapGetPointOffsetFromNow(0, date, idx, intervalMin, elecCt)) return false;
   if (intervalMin != heatCheapPlanIntervalMin) return false;
 
-  return date == heatCheapPlanStartDate &&
-         date == heatCheapPlanEndDate &&
-         idx >= heatCheapPlanStartIdx && idx < heatCheapPlanEndIdxExcl;
+  if (heatCheapPlanStartDate == heatCheapPlanEndDate) {
+    return date == heatCheapPlanStartDate &&
+           idx >= heatCheapPlanStartIdx && idx < heatCheapPlanEndIdxExcl;
+  }
+
+  // Een 2-dagdeelvenster mag over 00:00 lopen. De selectie blijft aaneengesloten;
+  // daarom horen op de startdag alle blokken vanaf startIdx en op de einddag alle
+  // blokken vóór endIdxExcl bij hetzelfde gekozen venster.
+  if (date == heatCheapPlanStartDate) return idx >= heatCheapPlanStartIdx;
+  if (date == heatCheapPlanEndDate) return idx < heatCheapPlanEndIdxExcl;
+  return false;
 }
 
 // Maak een nieuw plan vanaf NU tot 24:00.
@@ -547,6 +640,97 @@ static bool heatCheapBuildBestPlanForRestOfToday(const String& currentDate) {
   return true;
 }
 
+// Maak bij 2 dagdelen een plan vanaf NU tot de eerstvolgende ingestelde tijdgrens.
+// De selectie-algoritme is bewust gelijk aan de bestaande dagplanning: N blijft een maximum,
+// GAS-blokken breken een reeks en bij te weinig N wordt de langste beschikbare reeks gebruikt.
+static bool heatCheapBuildBestPlanUntilBoundary(const String& currentDate, const HeatCheapDayPartWindow& window) {
+  static const int kMaxWindowPoints = 128;
+  bool cheaper[kMaxWindowPoints];
+  float cost[kMaxWindowPoints];
+  int count = 0;
+  int commonInterval = 0;
+
+  for (int off = 0; off < kMaxWindowPoints; off++) {
+    String date;
+    int idx = -1;
+    int intervalMin = 0;
+    float elecCt = NAN;
+    if (!heatCheapGetPointOffsetFromNowAcrossTomorrow(off, date, idx, intervalMin, elecCt)) break;
+
+    const int pointMinute = idx * intervalMin;
+    if (date == window.deadlineDate && pointMinute >= window.deadlineMin) break;
+    if (date != currentDate && date != window.deadlineDate) break;
+
+    if (commonInterval == 0) commonInterval = intervalMin;
+    if (intervalMin != commonInterval) break;
+
+    bool isCheaper = false;
+    float elecHeatCt = NAN;
+    const bool valid = heatCheapEconomicDecisionForPoint(date, idx, intervalMin, elecCt, isCheaper, &elecHeatCt);
+    cheaper[count] = valid && isCheaper;
+    cost[count] = (valid && isfinite(elecHeatCt)) ? elecHeatCt : NAN;
+    count++;
+  }
+
+  heatCheapPlanClearWindow();
+  if (count <= 0 || commonInterval <= 0) return false;
+
+  int wanted = heatCheapNBlocks;
+  if (wanted < 1) wanted = 1;
+  if (wanted > 96) wanted = 96;
+
+  int longestRun = 0;
+  int currentRun = 0;
+  for (int i = 0; i < count; i++) {
+    if (cheaper[i]) {
+      currentRun++;
+      if (currentRun > longestRun) longestRun = currentRun;
+    } else {
+      currentRun = 0;
+    }
+  }
+  if (longestRun <= 0) return false;
+
+  const int windowLen = (longestRun < wanted) ? longestRun : wanted;
+
+  double bestSum = 1e30;
+  int bestOffset = -1;
+  for (int startOff = 0; startOff + windowLen <= count; startOff++) {
+    double sum = 0.0;
+    bool validWindow = true;
+    for (int k = 0; k < windowLen; k++) {
+      const int pos = startOff + k;
+      if (!cheaper[pos] || !isfinite(cost[pos])) {
+        validWindow = false;
+        break;
+      }
+      sum += cost[pos];
+    }
+    if (validWindow && (bestOffset < 0 || sum < bestSum)) {
+      bestOffset = startOff;
+      bestSum = sum;
+    }
+  }
+  if (bestOffset < 0) return false;
+
+  String startDate, endDate;
+  int startIdx = -1, endIdx = -1;
+  int startInterval = 0, endInterval = 0;
+  float dummyCt = NAN;
+  if (!heatCheapGetPointOffsetFromNowAcrossTomorrow(bestOffset, startDate, startIdx, startInterval, dummyCt)) return false;
+  if (!heatCheapGetPointOffsetFromNowAcrossTomorrow(bestOffset + windowLen - 1, endDate, endIdx, endInterval, dummyCt)) return false;
+  if (startInterval != endInterval) return false;
+
+  heatCheapPlanStartDate = startDate;
+  heatCheapPlanEndDate = endDate;
+  heatCheapPlanStartIdx = startIdx;
+  heatCheapPlanEndIdxExcl = endIdx + 1;
+  heatCheapPlanIntervalMin = startInterval;
+  heatCheapPlanSelectedBlocks = windowLen;
+  heatCheapPlanValid = true;
+  return true;
+}
+
 static bool heatCheapEnsurePlanForRestOfToday() {
   String currentDate;
   int currentIdx = -1;
@@ -576,8 +760,13 @@ static bool heatCheapEnsurePlanForRestOfToday() {
     return false;
   }
 
-  // Kalenderdag gewisseld terwijl ELEC doorliep: nooit een plan van gisteren doorslepen.
-  if (heatCheapPeriodLatched && heatCheapPeriodDate.length() && heatCheapPeriodDate != currentDate) {
+  // Stand 1 behoudt de bestaande kalenderdag-latch. Bij stand 2 is de eerstvolgende
+  // tijdgrens de latch-sleutel, zodat 07:00/19:00 onafhankelijk nieuwe kansen openen
+  // en een nachtvenster juist wél over 00:00 kan doorlopen.
+  HeatCheapDayPartWindow dayPartWindow;
+  const bool useTwoDayParts = (heatCheapDayParts == 2) && heatCheapGetCurrentDayPartWindow(dayPartWindow);
+  const String periodKey = useTwoDayParts ? dayPartWindow.key : currentDate;
+  if (heatCheapPeriodLatched && heatCheapPeriodDate.length() && heatCheapPeriodDate != periodKey) {
     heatCheapResetPeriodKeepTemperatureDemand();
   }
 
@@ -603,11 +792,20 @@ static bool heatCheapEnsurePlanForRestOfToday() {
     return heatCheapPlanContainsCurrentBlock();
   }
 
-  // Eerste activering, nieuwe dag, nieuwe ELEC-periode of nieuwe temperatuur-warmtevraag:
-  // zoek vanaf NU tot 24:00 het beste aaneengesloten venster voor de ingestelde N.
+  // Eerste activering, nieuwe ELEC-periode of nieuwe temperatuur-warmtevraag.
+  // Stand 1: bestaande planning vanaf NU tot 24:00.
+  // Stand 2: planning vanaf NU tot de eerstvolgende ingestelde dagdeelgrens.
   heatCheapPeriodLatched = true;
-  heatCheapPeriodDate = currentDate;
-  if (!heatCheapBuildBestPlanForRestOfToday(currentDate)) return false;
+  heatCheapPeriodDate = periodKey;
+  const bool built = useTwoDayParts
+      ? heatCheapBuildBestPlanUntilBoundary(currentDate, dayPartWindow)
+      : heatCheapBuildBestPlanForRestOfToday(currentDate);
+  if (!built) {
+    // In stand 2 kan morgen-data later beschikbaar komen. Zonder geldig plan laten we
+    // daarom een volgende tick opnieuw proberen; stand 1 blijft exact de oude latch behouden.
+    if (useTwoDayParts) heatCheapPeriodLatched = false;
+    return false;
+  }
 
   return heatCheapPlanContainsCurrentBlock();
 }
