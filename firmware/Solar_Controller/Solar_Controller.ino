@@ -66,7 +66,7 @@
 // ================= VERSION =================
 // Let op: dit nummer wordt ook getoond in de UI en in GitHub OTA check.
 // Issue #13 fail-safe: AUTO_ELEC alleen bij een geldige actuele prijsvergelijking.
-const char* FW_VERSION = "v2026.09.19.02";
+const char* FW_VERSION = "v2026.10.24.01";
 
 float elecCtKwhNow();
 float gasEurM3Now(bool total);
@@ -284,6 +284,9 @@ const bool  DEFAULT_HEAT_EXEC_ELEC_WHEN_CHEAPER     = false; // als ELEC goedkop
 const bool  DEFAULT_HEAT_CHEAP_BLOCKS_ENABLED        = false; // alleen goedkoopste aaneengesloten ELEC-blokken uitvoeren
 const bool  DEFAULT_HEAT_CHEAP_USE_BOILER_TARGET      = false; // boiler-doeltemperatuur begrenst AUTO_ELEC alleen wanneer expliciet ingeschakeld
 const int   DEFAULT_HEAT_CHEAP_N_BLOCKS              = 4;     // maximum blokken per aaneengesloten ELEC-periode
+const uint8_t DEFAULT_HEAT_CHEAP_DAY_PARTS             = 1;     // 1 = bestaande dagplanning, 2 = twee onafhankelijke dagdelen
+const int   DEFAULT_HEAT_CHEAP_BOUNDARY_1_MIN          = 7 * 60;  // standaard grens 07:00
+const int   DEFAULT_HEAT_CHEAP_BOUNDARY_2_MIN          = 19 * 60; // standaard grens 19:00
 const float DEFAULT_GAS_KWH_PER_M3                 = 9.77f;  // kWh per m³ (instelbaar)
 const float DEFAULT_GAS_BOILER_EFF                 = 0.90f;  // rendement gasboiler (0..1)
 const float DEFAULT_ELEC_BOILER_EFF                = 1.00f;  // (legacy) elektrisch rendement/COP (zie COP instelling)
@@ -308,6 +311,9 @@ bool  heatExecElecWhenCheaper     = DEFAULT_HEAT_EXEC_ELEC_WHEN_CHEAPER;
 bool  heatCheapBlocksEnabled       = DEFAULT_HEAT_CHEAP_BLOCKS_ENABLED;
 bool  heatCheapUseBoilerTarget     = DEFAULT_HEAT_CHEAP_USE_BOILER_TARGET;
 int   heatCheapNBlocks             = DEFAULT_HEAT_CHEAP_N_BLOCKS;
+uint8_t heatCheapDayParts            = DEFAULT_HEAT_CHEAP_DAY_PARTS;
+int   heatCheapBoundary1Min          = DEFAULT_HEAT_CHEAP_BOUNDARY_1_MIN;
+int   heatCheapBoundary2Min          = DEFAULT_HEAT_CHEAP_BOUNDARY_2_MIN;
 float gasKwhPerM3                = DEFAULT_GAS_KWH_PER_M3;
 float gasBoilerEff               = DEFAULT_GAS_BOILER_EFF;   // 0..1
 float elecBoilerEff              = DEFAULT_ELEC_BOILER_EFF;  // COP 0..10 (1.0 = element, >1.0 = warmtepomp)
@@ -513,7 +519,7 @@ extern const unsigned long PHASES_STALE_MS = 15000; // na 15s zonder geldige upd
 // =====================================================================================
 static const bool  DEFAULT_PHASE_GUARD_ENABLED = false;
 static const uint8_t DEFAULT_PHASE_GUARD_PHASE = 1;     // 1=L1,2=L2,3=L3
-static const float DEFAULT_PHASE_GUARD_MAX_A   = 23.0f;  // standaard 23A
+static const float DEFAULT_PHASE_GUARD_MAX_A   = 23.0f;  // Patrick: default 23A
 
 bool   phaseGuardEnabled = DEFAULT_PHASE_GUARD_ENABLED;
 uint8_t phaseGuardPhase  = DEFAULT_PHASE_GUARD_PHASE;
@@ -634,7 +640,7 @@ uint8_t appMultiControllerCurrentAppScenario() { return multiControllerCurrentAp
 // =====================================================================================
 // (step92) Hard cap op PWM tijdens prioriteitsmodi op basis van fase-max-A (indien fasebewaking is ingeschakeld)
 //
-// Probleem:
+// Probleem (Patrick):
 //   - In prioriteitsmodi (Force/Leg/Boost) ging PWM eerst (soft-start) oplopen en werd pas daarna teruggeregeld
 //     wanneer de gekozen fase boven de ingestelde max-A uitkwam.
 //
