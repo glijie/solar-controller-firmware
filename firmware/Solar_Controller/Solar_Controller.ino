@@ -66,7 +66,7 @@
 // ================= VERSION =================
 // Let op: dit nummer wordt ook getoond in de UI en in GitHub OTA check.
 // Issue #13 fail-safe: AUTO_ELEC alleen bij een geldige actuele prijsvergelijking.
-const char* FW_VERSION = "v2026.10.24.01";
+const char* FW_VERSION = "v2026.11.06.01";
 
 float elecCtKwhNow();
 float gasEurM3Now(bool total);

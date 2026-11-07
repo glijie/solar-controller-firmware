@@ -440,11 +440,44 @@ bool handleSunSchedMode(const String& t, const String& p, const String& base) {
   return true;
 }
 
+// Home Assistant MQTT Text verstuurt HH:MM, terwijl oudere clients minuten versturen.
+// Beide formats blijven werken. Ongeldige tijdstrings wijzigen de instelling niet.
+static bool parseSunManualTimeMinutes(const String& payload, int& outMin) {
+  String value = payload;
+  value.trim();
+  if (value.length() == 0) return false;
+
+  if (value.indexOf(':') >= 0) {
+    // HA Text-formaat: exact 00:00 t/m 23:59.
+    if (value.length() != 5 || value.charAt(2) != ':') return false;
+    for (int i = 0; i < 5; ++i) {
+      if (i == 2) continue;
+      const char c = value.charAt(i);
+      if (c < '0' || c > '9') return false;
+    }
+    const int hour = (value.charAt(0) - '0') * 10 + (value.charAt(1) - '0');
+    const int minute = (value.charAt(3) - '0') * 10 + (value.charAt(4) - '0');
+    if (hour > 23 || minute > 59) return false;
+    outMin = hour * 60 + minute;
+    return true;
+  }
+
+  // Bestaand numeriek MQTT-commando (minuten sinds 00:00) blijft mogelijk.
+  for (unsigned int i = 0; i < value.length(); ++i) {
+    const char c = value.charAt(i);
+    if (i == 0 && (c == '-' || c == '+')) continue;
+    if (c < '0' || c > '9') return false;
+  }
+  if (value.length() == 1 && (value.charAt(0) == '-' || value.charAt(0) == '+')) return false;
+  const long minutes = value.toInt();
+  outMin = (minutes < 0) ? 0 : (minutes > 24L * 60L) ? 24 * 60 : (int)minutes;
+  return true;
+}
+
 bool handleSunManualStart(const String& t, const String& p, const String& base) {
   if (t != base + "/sun/manual_start/set") return false;
-  int outMin = p.toInt();
-  if (outMin < 0) outMin = 0;
-  if (outMin > 24*60) outMin = 24*60;
+  int outMin = 0;
+  if (!parseSunManualTimeMinutes(p, outMin)) return true;
   applyJsonKeyInt("sun_w_s", outMin);
   mqttPublishSunStrategyStates(true);
   mqttPublishStatusJson(true);
@@ -453,9 +486,8 @@ bool handleSunManualStart(const String& t, const String& p, const String& base) 
 
 bool handleSunManualEnd(const String& t, const String& p, const String& base) {
   if (t != base + "/sun/manual_end/set") return false;
-  int outMin = p.toInt();
-  if (outMin < 0) outMin = 0;
-  if (outMin > 24*60) outMin = 24*60;
+  int outMin = 0;
+  if (!parseSunManualTimeMinutes(p, outMin)) return true;
   applyJsonKeyInt("sun_w_e", outMin);
   mqttPublishSunStrategyStates(true);
   mqttPublishStatusJson(true);

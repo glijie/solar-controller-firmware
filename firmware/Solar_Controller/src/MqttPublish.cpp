@@ -265,7 +265,7 @@ void mqttPublishCoreLiveStates(bool forceNow) {
     snprintf(buf, sizeof(buf), "%.1f", lastTempC);
     mqttClient.publish((base + "/live/leg_temp_c/state").c_str(), buf, true);
   } else {
-    mqttClient.publish((base + "/live/leg_temp_c/state").c_str(), "unknown", true);
+    mqttClient.publish((base + "/live/leg_temp_c/state").c_str(), "None", true);
   }
 
   snprintf(buf, sizeof(buf), "%d", wifiNow);

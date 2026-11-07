@@ -734,13 +734,13 @@ pubNumber("leg_hold_min",      "Legionella hold",     base + "/legionella/hold_m
 
   // Numbers: blocks / margin / location
   pubNumber("sun_cheapest_blocks", "Energy strategy - Aantal blokken", base + "/sun/cheapest_blocks/set", base + "/sun/cheapest_blocks/state",
-            1.0f, 48.0f, 1.0f, "blokken");
+            1.0f, 96.0f, 1.0f, "blokken");
   pubNumber("sun_daylight_margin_min", "Energy strategy - Marge (min)", base + "/sun/daylight_margin_min/set", base + "/sun/daylight_margin_min/state",
             0.0f, 180.0f, 1.0f, "min");
   pubNumber("sun_lat", "Energy strategy - Latitude", base + "/sun/lat/set", base + "/sun/lat/state",
-            -90.0f, 90.0f, 0.0001f, "°");
+            -90.0f, 90.0f, 0.001f, "°");
   pubNumber("sun_lon", "Energy strategy - Longitude", base + "/sun/lon/set", base + "/sun/lon/state",
-            -180.0f, 180.0f, 0.0001f, "°");
+            -180.0f, 180.0f, 0.001f, "°");
 
   // --------- Gas vs Elektra advies + slimme ELEC-blokken ---------
   {
@@ -888,15 +888,15 @@ pubNumber("leg_hold_min",      "Legionella hold",     base + "/legionella/hold_m
   // Numbers: taxes/costs
   pubNumber("np_energy_tax_ct", "Nordpool - Energiebelasting (ct/kWh)",
             base + "/np/energy_tax_ct/set", base + "/np/energy_tax_ct/state",
-            0.0f, 50.0f, 0.0001f, "ct/kWh");
+            0.0f, 500.0f, 0.001f, "ct/kWh");
 
   pubNumber("np_inkoop_ct", "Nordpool - Inkoopkosten (ct/kWh)",
             base + "/np/inkoop_ct/set", base + "/np/inkoop_ct/state",
-            0.0f, 50.0f, 0.0001f, "ct/kWh");
+            0.0f, 500.0f, 0.001f, "ct/kWh");
 
   pubNumber("np_btw_pct", "Nordpool - BTW (%)",
             base + "/np/btw_pct/set", base + "/np/btw_pct/state",
-            0.0f, 30.0f, 0.1f, "%");
+            0.0f, 100.0f, 0.1f, "%");
 
   // Price-boost settings
   {
@@ -929,7 +929,7 @@ pubNumber("leg_hold_min",      "Legionella hold",     base + "/legionella/hold_m
 
   pubNumber("np_boost_threshold_ct", "Nordpool - Boost drempel (ct/kWh)",
             base + "/np/boost_threshold_ct/set", base + "/np/boost_threshold_ct/state",
-            -50.0f, 200.0f, 0.0001f, "ct/kWh");
+            -500.0f, 500.0f, 0.001f, "ct/kWh");
 
   pubNumber("np_boost_n_blocks", "Nordpool - Aantal boost-blokken vandaag (N)",
             base + "/np/boost_n_blocks/set", base + "/np/boost_n_blocks/state",
