@@ -1,0 +1,15 @@
+Firmware: v2026.11.06.01
+Datum: 2026-11-06
+Basis: v2026.10.24.01
+
+Wijzigingen:
+- MQTT Discovery: 5 number-stepwaardes voldoen aan Home Assistant 2026.11 (0.001).
+- Legionella temperatuur bij ongeldige/niet aangesloten sensor publiceert None (HA unknown).
+- Handmatig tijdvenster via MQTT: HH:MM wordt correct omgerekend naar minuten; bestaande numerieke MQTT-commandopayload blijft ondersteund.
+- Instelbereiken van zonblokken, energiebelasting, inkoopkosten, BTW en boost-drempel afgestemd.
+- Max boilervermogen HA: bewuste grens 10000 W niet verruimd.
+- DS18B20-publicatie, publicatiefrequenties, mqtt-topics, Homey API, REST API, wifi/MQTT-reconnect en PWM ongewijzigd.
+
+Verificatie:
+- Broncode- en regressiecontrole; echte ESP32-compile, OTA en hardware/HA/Homey-tests nog nodig voor release.
+- Geen SolarController.bin in dit pakket.
