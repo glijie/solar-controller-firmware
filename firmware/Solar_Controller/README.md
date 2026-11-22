@@ -1,3 +1,9 @@
+# Solar Controller v2026.11.22.04
+
+Modern is de vaste weergave op alle pagina’s. Het paneel Weergave is verwijderd.
+
+De Homey Energy Dongle heeft nog teststatus (alfa).
+
 # Solar Controller – v2026.11.06.01
 
 ## Aangepast in v2026.11.06.01
