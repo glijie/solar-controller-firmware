@@ -402,7 +402,7 @@ void handleLiveJson() {
   doc["mc_surplus_group_max_pct"] = multiControllerGetSurplusGroupMaxPercent();
   appendMultiControllerDashboardSlots(doc);
 
-  const bool phasesVisible = (meterType == "youless" || meterType == "homewizard" || meterType == "smartgateways") && lastPhasesOk;
+  const bool phasesVisible = isSupportedP1MeterType(meterType) && lastPhasesOk;
   doc["phases_ok"] = phasesVisible;
   if (phasesVisible) {
     doc["i1_a"] = isnan(lastPhaseI1A) ? 0.0f : lastPhaseI1A;

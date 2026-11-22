@@ -7,6 +7,7 @@
 #include "RelayControl.h"
 #include "MultiController.h"
 #include "ControllerTemperatureGate.h"
+#include "MeterManager.h"
 #include "PhaseGuard.h"
 #include "sensors.h"
 
@@ -82,7 +83,6 @@ extern float   sunLat;
 extern float   sunLon;
 extern bool    dashShowSunWindowLabel;
 
-extern bool uiDarkMode;
 
 extern bool    phaseGuardEnabled;
 extern uint8_t phaseGuardPhase;
@@ -255,7 +255,7 @@ void clampAll() {
 
   if (legTempAddrStr.length() != 16) legTempAddrStr = "";
 
-  if (meterType != "youless" && meterType != "homewizard" && meterType != "smartgateways") meterType = "youless";
+  if (!isSupportedP1MeterType(meterType)) meterType = "youless";
 
   if (sysPublishIntervalSec < 10) sysPublishIntervalSec = 10;
   if (sysPublishIntervalSec > 3600) sysPublishIntervalSec = 3600;
@@ -385,7 +385,6 @@ void loadConfig() {
   sunLon               = prefs.getFloat("sun_lon", kDefaultSunLon);
 
   dashShowSunWindowLabel = prefs.getBool("dash_sun_lbl", true);
-  uiDarkMode = prefs.getBool("ui_dark", false);
 
   phaseGuardEnabled = prefs.getBool("pg_en", kDefaultPhaseGuardEnabled);
   phaseGuardPhase   = (uint8_t)prefs.getUChar("pg_ph", kDefaultPhaseGuardPhase);
@@ -540,7 +539,6 @@ void saveConfig() {
   prefs.putFloat("sun_lon",    sunLon);
 
   prefs.putBool ("dash_sun_lbl", dashShowSunWindowLabel);
-  prefs.putBool("ui_dark", uiDarkMode);
 
   prefs.putBool("ha_disc", haDiscoveryEnabled);
 

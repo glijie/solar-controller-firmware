@@ -206,7 +206,6 @@ void handleControlPage() {
   // (UI) Top tabs verwijderd – bottom nav is genoeg
 
 
-  // page += topTabs("control");
 page += "<div class='card'><div class='hd'><b>Modus</b><span class='tag'>bediening</span></div><div class='bd'>";
   page += rowHtml("Huidige modus", modeLabel());
 
@@ -323,7 +322,6 @@ void handleLegionellaPage() {
   // (UI) Top tabs verwijderd – bottom nav is genoeg
 
 
-  // page += topTabs("leg");
 page += "<div class='card'><div class='hd'><b>Run</b><span class='tag'>";
   page += legStateLabel();
   page += "</span></div><div class='bd'>";

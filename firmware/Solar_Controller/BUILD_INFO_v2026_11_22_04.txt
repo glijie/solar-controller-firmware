@@ -1,0 +1,11 @@
+Firmware: v2026.11.22.04
+Datum: 2026-11-22
+
+Wijzigingen
+- Modern is de vaste weergave op alle pagina’s. Het paneel Weergave is verwijderd.
+- De oude thema’s en hun losse dashboardgrafieken zijn uit de webbestanden verwijderd.
+- De Homey Energy Dongle gebruikt de compacte lokale verbinding uit de voorgaande bronrelease.
+
+Validatie
+- De bronrelease is gecontroleerd in de lokale browserpreview.
+- ESP32-compilatie, flashmeting en praktijktest met de Homey Energy Dongle staan open.

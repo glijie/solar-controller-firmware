@@ -2,10 +2,11 @@
 
 #include <Arduino.h>
 
-String htmlCss();
-String htmlHeader(const String& pageTitle);
+String htmlBaseStylesheet();
+String htmlDashboardScripts();
+String htmlSettingsScript();
+String htmlHeader(const String& pageTitle, bool isDashboard = false);
 String iconSvg(const String& id);
-String topTabs(const String& active);
 String navHtml(const String& active);
 String htmlFooter(const String& activeNav);
 String rowHtml(const String& k, const String& v);

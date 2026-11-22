@@ -29,7 +29,6 @@ extern WebServer server;
 extern String wifiSsid;
 extern String wifiPass;
 extern String deviceName;
-extern bool uiDarkMode;
 extern bool dashShowSunWindowLabel;
 
 extern uint8_t elecPriceSource;
@@ -426,19 +425,6 @@ const bool   oldRelayBootOn         = relayGetBootOn();
   // Those must be saved via /settings/save_reboot to avoid accidental disconnect.
 
 
-// UI / Theme (dark mode)
-// IMPORTANT: most settings forms do NOT post ui_dark. Only update when the field is present.
-// Otherwise an "Opslaan" elsewhere would unintentionally reset the theme.
-if (server.hasArg("ui_dark")) {
-    uiDarkMode = (server.arg("ui_dark").toInt() == 1);
-  } else if (server.hasArg("ui_theme")) {
-  // Optional explicit theme value
-  String t = server.arg("ui_theme");
-  t.toLowerCase();
-  uiDarkMode = (t == "dark");
-}
-// If neither is present: keep current uiDarkMode as-is.
-
 // Relais (vaste GPIO18)
 relaySetEnabled(readBoolSec("relay_en", relayIsEnabled(), "relay"));
 if (server.hasArg("relay_type")) {
@@ -831,36 +817,12 @@ void handleSettingsSaveSensors() {
   redirectTo("/settings");
 }
 
-// ================= UI / Theme (Optie A) =================
-// Slaat de keuze Light/Dark op in Preferences.
-// Let op: dit is een aparte form in Settings (onder Temperatuursensoren) om nested forms te vermijden.
-void handleSettingsSaveUi() {
-  // Verwacht bij voorkeur: checkbox ui_dark (aan/uit)
-  // (Fallback: ui_theme = "light" of "dark")
-  if (server.hasArg("ui_dark")) {
-    uiDarkMode = true;
-  } else if (server.hasArg("ui_theme")) {
-    String t = server.arg("ui_theme");
-    t.trim();
-    uiDarkMode = (t == "dark");
-  } else {
-    // Als niets meegestuurd is: behandel als uit
-    uiDarkMode = false;
-  }
-  saveConfig();
-  redirectTo("/settings");
-}
-
-
-
-
 void handleSettingsPage() {
-  String page = htmlHeader("Settings");
+  String page = htmlHeader("Instellingen");
 
   // (UI) Top tabs verwijderd – bottom nav is genoeg
 
 
-  // page += topTabs("set");
 page += "<details class='acc'><summary><div class='sum'><b>Netwerk & Meter</b><span class='tag'>reboot</span></div></summary><div class='accbd'>";
   page += "<form id='mainSettingsForm' method='POST' action='/settings/save' novalidate>";
   page += "<input type='hidden' name='_section' value='' data-role='section'>";
@@ -886,6 +848,7 @@ page += "<label>WiFi SSID</label>";
   page += String("<option value='youless'") + ((meterType=="youless") ? " selected" : "") + ">Youless LS120</option>";
   page += String("<option value='homewizard'") + ((meterType=="homewizard") ? " selected" : "") + ">HomeWizard P1</option>";
   page += String("<option value='smartgateways'") + ((meterType=="smartgateways") ? " selected" : "") + ">Smart Gateways P1</option>";
+  page += String("<option value='homey_energy_dongle'") + ((meterType=="homey_energy_dongle") ? " selected" : "") + ">Homey Energy Dongle</option>";
   page += "</select>";
 
   page += "<label>Meter IP-adres</label><input name='meter_ip' value='" + meterIp + "'>";
@@ -1352,127 +1315,11 @@ page += "<div class='row' style='margin-top:14px'><button class='btn' type='subm
 page += "</form>";
 page += "</div></details>";
 
-// ================= Weergave (Theme) =================
-// Optie A: onder Temperatuursensoren een eenvoudige keuze voor Dark mode.
-page += "<details class='acc'><summary><div class='sum'><b>Weergave</b><span class='tag'>theme</span></div></summary><div class='accbd'>";
-page += "<form method='POST' action='/settings/save'>";
-page += "<div class='row'><div class='k'>Donkere modus</div><div class='v'>";
-page += String("<span class='switch ") + ((uiDarkMode) ? "on" : "") + "' onclick=\"sw(this,false);document.getElementById('ui_dark').value=document.getElementById('ui_dark_chk').checked?'1':'0';\">";
-page += String("<input type='hidden' name='ui_dark' id='ui_dark' value='") + (uiDarkMode ? "1" : "0") + "'>";
-page += String("<input type='checkbox' name='ui_dark_chk' value='1' ") + (uiDarkMode ? "checked" : "") + " id='ui_dark_chk' onchange=\"document.getElementById('ui_dark').value = this.checked ? '1' : '0';\">";
-page += "<span class='slider'></span></span>";
-page += "</div></div>";
-page += "<div class='help'>Zelfde groen/wit thema, maar met een donkere achtergrond en lichte tekst (fijner in de avond).</div>";
-page += "<div class='row' style='margin-top:14px'><button class='btn' type='submit'>Opslaan</button></div>";
-page += "</form>";
-page += "</div></details>";
-
-
   page += "<div style='height:10px'></div>";
   page += "<a href='/update' style='text-decoration:none'><button class='btn dark' type='button'>OTA update</button></a>";
 
 
-  // WiFi scan (op aanvraag) – vult dropdown met SSID's (voor verborgen SSID blijft handmatig typen mogelijk)
-    page += "<script>";
-  page += "function pm(id){var el=document.getElementById(id);if(!el)return;var s=(el.value||'0').toString().replace(',','.');var v=parseFloat(s);if(!isFinite(v))v=0;v=-v;var step=(el.getAttribute('step')||'');if(step.indexOf('.')>=0){var dec=step.split('.')[1].length;el.value=v.toFixed(dec);}else{el.value=String(v);}el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));}";
-  page += "function parseEU(v){v=(v||'').toString().trim();v=v.replace(',','.');var n=parseFloat(v);return isFinite(n)?n:0;}";
-  page += "function fmtEU(n,dec){if(!isFinite(n))n=0;var s=n.toFixed(dec);return s.replace('.',',');}";
-  page += "function fixEU(id,dec){var el=document.getElementById(id);if(!el)return;var n=parseEU(el.value);el.value=fmtEU(n,dec);}";
-  page += "function spinEU(id,dir,step,dec){var el=document.getElementById(id);if(!el)return;var n=parseEU(el.value);n=n+(dir*step);el.value=fmtEU(n,dec);el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));}";
-  // Gas gebruikt nu <input type='number'> met de native spinner (zoals Nordpool).
-  // Daarom géén custom EU-formatting (fixEU/spinEU) op deze velden.
-  page += "";
-  page += "function onSsidPick(){var sel=document.getElementById(\"ssid_select\");var man=document.getElementById(\"ssid_manual\");if(!sel||!man)return;var v=sel.value||\"\";if(v)man.value=v;}";
-  page += "async function scanWifi(){var st=document.getElementById('ssid_status');var sel=document.getElementById('ssid_select');var man=document.getElementById('ssid_manual');var btn=document.getElementById('btn_wifi_scan');if(!st||!sel||!man){return false;}st.innerHTML='Scannen…';sel.innerHTML='<option value=\"\">— Kies uit scanlijst —</option>';if(btn){btn.disabled=true;btn.textContent='Scannen…';}try{var r=await fetch('/api/wifi_scan',{cache:'no-store'});if(!r.ok){throw new Error('HTTP '+r.status);}var j=await r.json();var arr=[];if(j){if(Array.isArray(j.aps)){arr=j.aps;}else if(Array.isArray(j.networks)){arr=j.networks;}}var cnt=0;for(var i=0;i<arr.length;i++){var ap=arr[i]||{};var ssid=(ap.ssid||ap.SSID||'');if(!ssid){continue;}var rssi=(ap.rssi!==undefined)?ap.rssi:ap.RSSI;var opt=document.createElement('option');opt.value=ssid;opt.textContent=(rssi!==undefined&&rssi!==null&&rssi!=='')?(ssid+' ('+rssi+' dBm)'):ssid;sel.appendChild(opt);cnt++;}if(cnt===0){st.innerHTML='Geen netwerken gevonden.';}else{st.innerHTML='Gevonden: <b>'+cnt+'</b> (kies uit de lijst of typ handmatig).';}}catch(e){st.innerHTML='Scan mislukt: '+(e&&e.message?e.message:e);}finally{if(btn){btn.disabled=false;btn.textContent='Scan WiFi';}}return false;}";
-  // step26 (minimaal): MQTT connectie status in Settings (via /api/status)
-  page += "async function refreshMqttUi(){var s=document.getElementById('mqtt_status');var x=document.getElementById('mqtt_status_extra');if(!s){return;}try{var r=await fetch('/api/status_light',{cache:'no-store'});if(!r.ok){throw new Error('HTTP '+r.status);}var j=await r.json();var ok=!!(j&&j.mqtt_connected);s.textContent=ok?'Verbonden':'Niet verbonden';s.className=ok?'ok':'bad';if(x){var b=(j&&j.mqtt_broker)?j.mqtt_broker:'';var t=(j&&j.mqtt_topic_base)?j.mqtt_topic_base:'';x.textContent=(b||t)?(' — '+b+(t?(' — '+t):'')):'';}}catch(e){s.textContent='Onbekend';s.className='bad';if(x){x.textContent='';}}}";
-  page += "document.addEventListener(\"DOMContentLoaded\",function(){\n"
-          "  // WiFi scan knop\n"
-          "  var btn=document.getElementById(\"btn_wifi_scan\");\n"
-          "  if(btn){btn.addEventListener(\"click\",function(ev){ev.preventDefault();scanWifi();});}\n"
-          "  window.scanWifi=scanWifi;\n"
-          "\n"
-          "  // MQTT status\n"
-          "  refreshMqttUi();\n"
-          "  setInterval(refreshMqttUi,3000);\n"
-          "\n"
-          "  // NL decimaal (komma) voor vaste stroomprijs\n"
-          "  try{ fixEU('elec_fix_ct',3); }catch(e){}\n"
-          "\n"
-          "  // UI: toon/verberg vaste prijs en Nordpool opties (zonder reload)\n"
-          "  function applyElecSrcUi(){\n"
-          "    var sel=document.getElementById('elec_src');\n"
-          "    var fixed=document.getElementById('elec_fixed_box');\n"
-          "    var dyn=document.getElementById('np_dyn_opts');\n"
-          "    if(!sel) return;\n"
-          "    var isFixed = (sel.value==='1');\n"
-          "    if(fixed) fixed.style.display = isFixed ? 'block' : 'none';\n"
-          "    if(dyn)   dyn.style.display   = isFixed ? 'none'  : 'block';\n"
-          "  }\n"
-          "  var sel=document.getElementById('elec_src');\n"
-          "  if(sel){ sel.addEventListener('change', applyElecSrcUi); applyElecSrcUi(); }\n"
-          "\n"
-          "  function applyMcEnabledUi(){\n"
-          "    var cb=document.getElementById('mc_en');\n"
-          "    var panel=document.getElementById('mc_enabled_panel');\n"
-          "    if(!cb || !panel) return;\n"
-          "    panel.style.display = cb.checked ? '' : 'none';\n"
-          "  }\n"
-          "  var mcEn=document.getElementById('mc_en');\n"
-          "  if(mcEn){ mcEn.addEventListener('change', applyMcEnabledUi); applyMcEnabledUi(); }\n"
-          "\n"
-          "  function applyMcSlotUi(slot){\n"
-          "    var type=document.getElementById('mc_s'+slot+'_type');\n"
-          "    if(!type) return;\n"
-          "    var isNetwork=(type.value==='2');\n"
-          "    var ip=document.getElementById('mc_s'+slot+'_ip');\n"
-          "    var ipNa=document.getElementById('mc_s'+slot+'_ip_na');\n"
-          "    var pin=document.getElementById('mc_s'+slot+'_pin');\n"
-          "    var pinNa=document.getElementById('mc_s'+slot+'_pin_na');\n"
-          "    if(ip){ ip.disabled=!isNetwork; ip.style.display=isNetwork?'':'none'; }\n"
-          "    if(ipNa){ ipNa.style.display=isNetwork?'none':''; }\n"
-          "    if(pin){ pin.disabled=isNetwork; pin.style.display=isNetwork?'none':''; }\n"
-          "    if(pinNa){ pinNa.style.display=isNetwork?'':'none'; }\n"
-          "  }\n"
-          "  function initMcSlotUi(){\n"
-          "    var types=document.querySelectorAll(\"select[data-mc-slot]\");\n"
-          "    for(var i=0;i<types.length;i++){\n"
-          "      (function(sel){\n"
-          "        var slot=sel.getAttribute('data-mc-slot');\n"
-          "        if(!slot) return;\n"
-          "        sel.addEventListener('change', function(){ applyMcSlotUi(slot); });\n"
-          "        applyMcSlotUi(slot);\n"
-          "      })(types[i]);\n"
-          "    }\n"
-          "  }\n"
-          "  initMcSlotUi();\n"
-          "\n"
-          "  function markSubmitBusy(ev){\n"
-          "    var sb=(ev&&ev.submitter)?ev.submitter:null;\n"
-          "    if(sb && !sb.dataset.busy){\n"
-          "      sb.dataset.busy='1';\n"
-          "      sb.disabled=true;\n"
-          "      var t=(sb.textContent||'').trim();\n"
-          "      if(t){ sb.textContent = (t.indexOf('reboot')>=0 || t.indexOf('Reboot')>=0) ? 'Opslaan & rebooten...' : 'Opslaan...'; }\n"
-          "    }\n"
-          "  }\n"
-          "\n"
-          "  // Veilig: bij submit comma -> punt (ESP verwacht dot, server-side doen we ook nog een replace)\n"
-          "  var f=document.getElementById('mainSettingsForm');\n"
-          "  if(f){\n"
-          "    f.addEventListener('submit', function(ev){\n"
-          "      var e=document.getElementById('elec_fix_ct');\n"
-          "      if(e && e.value){ e.value = e.value.toString().replace(',', '.'); }\n"
-          "      markSubmitBusy(ev);\n"
-          "    });\n"
-          "  }\n"
-          "  var forms=document.querySelectorAll(\"form[action='/settings/save'],form[action='/settings/save_reboot'],form[action='/settings/save_sensors']\");\n"
-          "  for(var fi=0; fi<forms.length; fi++){\n"
-          "    if(forms[fi]===f) continue;\n"
-          "    forms[fi].addEventListener('submit', markSubmitBusy);\n"
-          "  }\n"
-          "});";
-  page += "</script>";
+  page += htmlSettingsScript();
 
   page += htmlFooter("set");
   server.sendHeader("Cache-Control", "no-store, max-age=0");

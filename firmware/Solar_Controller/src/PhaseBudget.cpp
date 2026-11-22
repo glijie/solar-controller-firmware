@@ -3,6 +3,7 @@
 #include <math.h>
 
 #include "app_globals.h"
+#include "MeterManager.h"
 #include "PhaseGuard.h"
 
 namespace {
@@ -17,12 +18,8 @@ PhaseBudgetSnapshot gPhaseBudgetSnapshot = {
   0UL,
 };
 
-bool isP1MeterType() {
-  return (meterType == "youless" || meterType == "homewizard" || meterType == "smartgateways");
-}
-
 void phaseBudgetSyncSnapshotFromGlobals(bool readOkNow) {
-  gPhaseBudgetSnapshot.meterSupportsPhases = isP1MeterType();
+  gPhaseBudgetSnapshot.meterSupportsPhases = isSupportedP1MeterType(meterType);
   gPhaseBudgetSnapshot.readOk = readOkNow;
   gPhaseBudgetSnapshot.phasesOk = lastPhasesOk;
   gPhaseBudgetSnapshot.i1A = lastPhaseI1A;
@@ -34,21 +31,27 @@ void phaseBudgetSyncSnapshotFromGlobals(bool readOkNow) {
 } // namespace
 
 bool phaseBudgetMeterSupportsPhases() {
-  return isP1MeterType();
+  return isSupportedP1MeterType(meterType);
 }
 
 bool phaseBudgetRefreshSnapshot() {
-  const bool meterSupportsPhases = isP1MeterType();
+  const bool meterSupportsPhases = phaseBudgetMeterSupportsPhases();
   bool readOkNow = false;
 
   if (meterSupportsPhases) {
     float i1 = NAN, i2 = NAN, i3 = NAN;
-    readOkNow = readMeterPhases(i1, i2, i3);
+    unsigned long measuredAtMs = 0;
+    readOkNow = readMeterPhases(i1, i2, i3, measuredAtMs);
     if (readOkNow) {
       lastPhaseI1A = i1;
       lastPhaseI2A = i2;
       lastPhaseI3A = i3;
-      lastPhasesUpdateMs = millis();
+      lastPhasesUpdateMs = measuredAtMs;
+    } else if (isHomeyP1Meter(meterType)) {
+      // The reader already checks age at the source. Missing phase data in the
+      // latest telegram must not keep a previous reading valid.
+      lastPhaseI1A = lastPhaseI2A = lastPhaseI3A = NAN;
+      lastPhasesUpdateMs = 0;
     }
 
     const unsigned long age = (lastPhasesUpdateMs == 0UL) ? 0xFFFFFFFFUL : (millis() - lastPhasesUpdateMs);

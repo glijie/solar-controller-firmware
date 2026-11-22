@@ -15,7 +15,6 @@
 // ----- Globals defined in the main .ino -----
 extern WebServer server;
 extern Preferences prefs;
-extern bool uiDarkMode;
 extern bool fwAutoUpdateEnabled;
 
 // Shared OTA endpoints/settings now owned by this module.
@@ -672,19 +671,6 @@ void handleFwUpdateNowUi() {
   server.sendHeader("Cache-Control", "no-store, max-age=0");
 
   String page = htmlHeader("Online update");
-  page += "<style>"
-          ".wrap{padding-bottom:88px}"
-          ".pbar{height:16px;border-radius:999px;background:rgba(255,255,255,.10);overflow:hidden;border:1px solid rgba(255,255,255,.14)}"
-          ".pfill{height:100%;width:0%;background:linear-gradient(180deg,var(--accent2),var(--accent));transition:width .25s ease}"
-          ".pfill.indet{width:45%;animation:indet 1.2s ease-in-out infinite}"
-          "@keyframes indet{0%{transform:translateX(-120%)}50%{transform:translateX(60%)}100%{transform:translateX(260%)}}"
-          ".mono{font-variant-numeric:tabular-nums}"
-          "</style>";
-
-  page += "<body><div class='wrap'>";
-  page += "<h1>" + String(DEVICE_NAME) + "</h1>";
-  page += "<div class='sub'>OTA update</div>";
-
   page += "<div class='card'><div class='hd'><b>Online update wordt uitgevoerd…</b><span class='tag'>GitHub</span></div><div class='bd'>";
   page += "<div class='help mono' id='msg'>Starten…</div>";
   page += "<div style='height:12px'></div>";
@@ -802,33 +788,10 @@ prefs.begin("boilerbox", false);
 void handleUpdatePage() {
   server.sendHeader("Cache-Control", "no-store, max-age=0");
 
-  String page =
-    String("<!doctype html><html><head><meta charset='utf-8'>") +
-    "<meta name='viewport' content='width=device-width, initial-scale=1, maximum-scale=1'>" +
-    "<title>" + String(DEVICE_NAME) + " OTA</title>" +
-    "<style>" + htmlCss() +
-      ".wrap{padding-bottom:88px}" // keep content above bottom nav
-      ".file{margin:10px 0}"
-      ".row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}"
-      ".autoRow{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:10px}"
-      ".autoRow .autoText{flex:1}"
-      ".kv{display:flex;gap:10px;flex-wrap:wrap;margin:8px 0}"
-      ".kv b{min-width:110px;display:inline-block}"
-      ".small{opacity:.85;font-size:.92rem}"
-      ".btn2{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 14px;border-radius:14px;border:1px solid rgba(0,0,0,.10);background:linear-gradient(180deg,var(--accent2),var(--accent));color:#fff;font-size:14px;font-weight:900;cursor:pointer;box-shadow:0 6px 14px rgba(0,0,0,.08)}"
-      ".btn2.ghost{background:#fff;color:var(--text);border:1px solid rgba(0,0,0,.14);box-shadow:none}"
-      "body.dark .btn2.ghost{background:rgba(26,34,29,.92);color:var(--text);border:1px solid rgba(232,241,236,.18);box-shadow:none}"
-      ".btn2:active{transform:translateY(1px)}"
-      ".btn2:disabled{opacity:.45;cursor:not-allowed;transform:none}"
-      ".pill{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);font-weight:800}"
-      ".ok{color:#7CFC98}.bad{color:#FF8A8A}.muted{opacity:.75}"
-    "</style>" +
-    "</head><body" + String(uiDarkMode ? " class='dark'" : "") + "><div class='wrap'>" +
-      "<h1>" + String(DEVICE_NAME) + "</h1>" +
-      "<div class='sub'>OTA update</div>" +
+  String page = htmlHeader("Firmware-update");
 
       // GitHub OTA (pull) card
-      "<div class='card'><div class='hd'><b>Online update</b><span class='tag'>GitHub</span></div><div class='bd'>" +
+  page += String("<div class='card'><div class='hd'><b>Online update</b><span class='tag'>GitHub</span></div><div class='bd'>") +
         "<div class='help'>Controleer of er een nieuwere firmware klaarstaat op GitHub. Je kunt handmatig updaten, of automatisch.</div>" +
         "<div class='kv small'>" +
           "<div><b>Installed:</b> " + String(FW_VERSION) + "</div>" +

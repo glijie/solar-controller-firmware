@@ -161,7 +161,6 @@ extern uint32_t pwmBootStartMs;
 extern bool pwmSeenValidMeterSample;
 String meterLabel();
 bool readMeterPower(long &powerW);
-bool readMeterPhases(float &i1, float &i2, float &i3);
 bool timeIsValid();
 float appGetPhaseCurrentA(uint8_t phase123);
 float appApplyPrioritySoftStartWithStart(float requestedPct, bool prioActive, bool gateActive, float startPct, float currentAppliedPct, bool syncToCurrentApplied);

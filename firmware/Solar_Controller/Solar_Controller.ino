@@ -66,7 +66,7 @@
 // ================= VERSION =================
 // Let op: dit nummer wordt ook getoond in de UI en in GitHub OTA check.
 // Issue #13 fail-safe: AUTO_ELEC alleen bij een geldige actuele prijsvergelijking.
-const char* FW_VERSION = "v2026.11.06.01";
+const char* FW_VERSION = "v2026.11.22.04";
 
 float elecCtKwhNow();
 float gasEurM3Now(bool total);
@@ -179,7 +179,7 @@ String wifiSsid;
 String wifiPass;
 String deviceName;  // mDNS hostname (zonder .local)
 
-// Meter keuze: "youless", "homewizard" of "smartgateways"
+// Meter keuze: "youless", "homewizard", "smartgateways" of "homey_energy_dongle"
 String meterType = "youless";
 String meterIp;
 
@@ -413,7 +413,6 @@ bool    dashShowSunWindowLabel = true;  // Toon Daylight/Cheapest label op Dashb
 // ================= UI / Theme =====================
 // Optie A: Licht/Donker modus binnen hetzelfde Solar Controller thema.
 // Wordt opgeslagen in NVS (Preferences) zodat het ook na reboot en op andere devices consistent is.
-bool    uiDarkMode = false;
 
 // Runtime: berekende daylight + gekozen goedkoopste window (vandaag)
 String  sunWinDate           = "";
@@ -696,7 +695,6 @@ void handleLegionellaPage();
 void handleControlSaveTemperatureGate();
 void handleSettingsPage();
 void handleSettingsSaveSensors();
-void handleSettingsSaveUi();
 
 void setup() {
   // PWM HARD-SAFE start (v2026.02.09.07)
@@ -857,6 +855,7 @@ void loop() {
 
   if (nowMs - lastPollMs >= POLL_INTERVAL_MS) {
     lastPollMs = nowMs;
+    updateHomeyMeterConnection();
 
     // Stap 1 fase/loadbalancing-basis:
     // ververs de actuele fasewaarden vóór de regelbeslissingen,

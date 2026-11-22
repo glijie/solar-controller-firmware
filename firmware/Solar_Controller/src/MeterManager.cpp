@@ -7,15 +7,27 @@
 #include <string.h>
 
 #include "app_globals.h"
+#include "HomeyP1Meter.h"
 #include "PhaseBudget.h"
 
 static unsigned long sgReadCacheMs = 0;
 static String sgReadCachePayload;
+static HomeyP1Sample homeyPollSample{};
+static unsigned long homeyPollMeasuredAtMs = 0;
+static bool homeyPollReady = false;
 
 String meterLabel() {
   if (meterType == "homewizard") return "HomeWizard P1";
   if (meterType == "smartgateways") return "Smart Gateways P1";
+  if (isHomeyP1Meter(meterType)) return "Homey Energy Dongle";
   return "Youless LS120";
+}
+
+void updateHomeyMeterConnection() {
+  const bool enabled = isHomeyP1Meter(meterType) && WiFi.status() == WL_CONNECTED;
+  homeyP1Update(enabled ? meterIp.c_str() : nullptr);
+  // Both meter reads in this control cycle use the same telegram.
+  homeyPollReady = enabled && homeyP1Read(homeyPollSample, homeyPollMeasuredAtMs);
 }
 
 static bool readYoulessPower(long &powerW) {
@@ -281,13 +293,27 @@ void appRefreshSmartGatewaysPhasesForGuard() {
   refreshSmartGatewaysPhasesForGuard();
 }
 
-bool readMeterPhases(float &i1, float &i2, float &i3) {
-  if (meterType == "homewizard") return readHomeWizardPhases(i1, i2, i3);
-  if (meterType == "smartgateways") return readSmartGatewaysPhases(i1, i2, i3);
-  return readYoulessPhases(i1, i2, i3);
+bool readMeterPhases(float &i1, float &i2, float &i3, unsigned long& measuredAtMs) {
+  if (isHomeyP1Meter(meterType)) {
+    if (!homeyPollReady || !homeyPollSample.hasPhases) return false;
+    i1 = homeyPollSample.phaseA[0];
+    i2 = homeyPollSample.phaseA[1];
+    i3 = homeyPollSample.phaseA[2];
+    measuredAtMs = homeyPollMeasuredAtMs;
+    return true;
+  }
+  const bool ok = meterType == "homewizard" ? readHomeWizardPhases(i1, i2, i3)
+    : meterType == "smartgateways" ? readSmartGatewaysPhases(i1, i2, i3)
+    : readYoulessPhases(i1, i2, i3);
+  if (ok) measuredAtMs = millis();
+  return ok;
 }
 
 bool readMeterPower(long &powerW) {
+  if (isHomeyP1Meter(meterType)) {
+    powerW = homeyPollReady ? homeyPollSample.netPowerW : 0;
+    return homeyPollReady;
+  }
   if (meterType == "homewizard") return readHomeWizardPower(powerW);
   if (meterType == "smartgateways") return readSmartGatewaysPower(powerW);
   return readYoulessPower(powerW);

@@ -1,5 +1,6 @@
 #include "MultiControllerInternal.h"
 
+
 static String mcHtmlEscape(const String& in) {
   String out;
   out.reserve(in.length() + 16);
@@ -42,7 +43,7 @@ String multiControllerBuildSettingsSection() {
   page += "<div class='help'>Lokale outputs gevraagd: <b>" + String(multiControllerGetRequestedLocalPwmCount()) + "</b> — actief: <b>" + String(multiControllerGetEffectiveLocalPwmCount()) + "</b></div><div class='help'>" + mcRequestLabel + ": <b>" + String(multiControllerGetRequestedGroupPercent(), 1) + "%</b> — toegepast: <b>" + String(multiControllerGetAssignedGroupPercent(), 1) + "%</b></div><div class='help'>Scenario: <b>" + multiControllerGetScenarioLabel() + "</b></div>";
 
   page += "<div class='row nb'><div class='k'>Multi Controller actief</div><div class='v'>";
-  page += String("<span class='switch ") + (mcEnabled ? "on" : "") + "' onclick='sw(this,false);setTimeout(applyMcEnabledUi,0)'>";
+  page += String("<span class='switch ") + (mcEnabled ? "on" : "") + "' onclick='sw(this,false)'>";
   page += String("<input type='checkbox' id='mc_en' name='mc_en' value='1' ") + (mcEnabled ? "checked" : "") + "><span class='slider'></span></span>";
   page += "</div></div>";
   page += "<div class='help'>Toggle uit = <b>standalone lokaal</b>. Toggle aan = Multi Controller actief op de laatst gekozen rol <b>" + String((uiRole == MC_ROLE_SLAVE) ? "slave" : "master") + "</b>.</div>";

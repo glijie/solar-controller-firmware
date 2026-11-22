@@ -1,1 +1,1 @@
-{"version":"v2026.11.06.01","notes":"Home Assistant MQTT-correcties: 5 instelvelden opnieuw beschikbaar, geen foutmelding bij ontbrekende legionellatemperatuur, correcte handmatige tijden via HA en afgestemde instelbereiken. Bestaande koppelingen en regelingen behouden."}
+{"version":"v2026.11.22.04","notes":"Modern is nu de vaste weergave op alle pagina’s. De Homey Energy Dongle gebruikt een compactere lokale verbinding."}
